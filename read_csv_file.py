@@ -24,22 +24,15 @@ def send_tree_part(tag_part, eq_part, index, g_tag, data_base, mode, schema, fir
     if mode == 2:
         area = area + g_tag[tag_part+1]
 
-    try:
-        branch_count_at_schema_pos = dict_matrix0[tag_part]
-    except:
+    if not tag_part in dict_matrix0:
         dict_matrix0[tag_part] = 1
         dict_matrix[tag_part] = {area:0}
 
-    area_dict_matrix = dict_matrix[tag_part]
-
-    try:
-        area_count_at_schema_position = area_dict_matrix[area]
-    except:
-        dict_matrix[tag_part][area]=0
+    if not area in dict_matrix[tag_part]:
+        dict_matrix[tag_part][area] = 0
         dict_matrix0[tag_part] += 1
-        area_dict_matrix = dict_matrix[tag_part]
 
-    area_dict_matrix[area] += 1
+    dict_matrix[tag_part][area] += 1
 
     #print('tag_part {} area {} len {} count {}'
     #      .format(tag_part, area, dict_matrix0[tag_part], area_dict_matrix))
@@ -59,9 +52,9 @@ def send_tag_to_matrix(search_digit, g_tag, schema,
 
     count = 0
     equip_level_tree = 0
-    for chr in schema:
+    for char in schema:
         equip_level_tree += 1
-        if chr == "W":
+        if char == "W":
             count += 1
             if count == equip_postion:
                 break
@@ -72,15 +65,13 @@ def send_tag_to_matrix(search_digit, g_tag, schema,
     #print('eqpipment {}, pos {}'.format(eq_part, equip_postion))
 
     if first_level_tree == -1:
-        index = -1
-        try:
-            index = equip_matrix.index(eq_part)
-        except:
+        if not eq_part in equip_matrix:
             equip_matrix.append(eq_part)
             equip_type_count_matrix.append(0)
             matrix0.append(dict())
             matrix.append(dict())
 
+        index = equip_matrix.index(eq_part)
         equip_type_count_matrix[index] += 1
         #print('eqpipment {}, pos {}'.format(equip_matrix, equip_postion))
         #print('eqpipment {}, count {}'.format(equip_matrix, equip_type_count_matrix[index]))
@@ -111,28 +102,28 @@ def get_schema(tag):
     type = ''
     g_tag = []
 
-    for chr in tag:
-        if chr == "\"":
+    for char in tag:
+        if char == "\"":
             continue
 
         # print('character {}'.format(chr)) - for debugging
-        if chr.isalpha():
+        if char.isalpha():
             if not type == "W":
                 type = "W"
                 schema = schema + type
-                g_tag.append(chr)
+                g_tag.append(char)
             else:
-                g_tag[len(g_tag ) -1] = g_tag[len(g_tag ) -1] + chr
+                g_tag[len(g_tag ) -1] = g_tag[len(g_tag ) -1] + char
 
-        if chr.isnumeric():
+        if char.isnumeric():
             type = "N"
             schema = schema + type
-            g_tag.append(chr)
+            g_tag.append(char)
 
-        if not chr.isalnum():
-            type = chr # record delineator type
+        if not char.isalnum():
+            type = char # record delineator type
             schema = schema + type
-            g_tag.append(chr)
+            g_tag.append(char)
 
     # print('g_tag = {}'.format(g_tag)) # for debuging
     return schema, g_tag

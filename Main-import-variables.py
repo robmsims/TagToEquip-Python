@@ -26,7 +26,7 @@ def main(file_name = ''):
     print('Equipment I/O Device {}'.format(loc_iodev))
 
     # get most common schema
-    max_count = 24 # limit read in while testing
+    max_count = 200000 # limit read in while testing
     top_schema = find_equip_and_tree.read_in_schema(file_name, loc_tagname, max_count)
     print('schema = {}'.format(top_schema))
 

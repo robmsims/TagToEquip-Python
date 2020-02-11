@@ -1,4 +1,46 @@
 import read_csv_file
+import count_equip
+
+def find_best_match_for_tree(schema, data_base, dont_use_words, percent_filter):
+    filter_min = 92
+    if percent_filter < filter_min:
+        filter_min = percent_filter
+
+    score_total_max = 0
+    score_total_prev = 0
+    tag_part_at_max = -1
+    for current_filter in range(percent_filter, filter_min-1, -1):
+        score_total_max = 0
+        score_total_prev = 0
+        for tag_part in range(0,len(schema)):
+            char = schema[tag_part:tag_part+1]
+            if char == "W" and dont_use_words == 1:
+                continue
+
+            if not char.isalpha():
+                continue
+
+            # print('tag_part = {}, char = {}'.format(tag_part, char))
+
+            score_total = count_equip.add_highest_count_of_stored_tree_parts(tag_part,
+                                            data_base, score_total_max, current_filter)
+
+            if score_total_max < score_total:
+                if score_total_prev < score_total_max:
+                    score_total_prev = score_total_max # record previous max
+                    
+                score_total_max = score_total
+                tag_part_at_max = tag_part
+
+            elif score_total_prev < score_total:
+                score_total_prev = score_total # if two scores are the same record second as prev
+
+        if not score_total_max == 0:
+            if score_total_prev/score_total_max < percent_filter/100.0:
+                break
+
+    return tag_part_at_max, score_total_max
+
 
 def read_first_line(file_name):
     with open(file_name, mode='rt', encoding='utf-8') as f:
@@ -51,14 +93,21 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, max_count, 
     mode = -1 # switch to record equipment
     search_digit = 0
 
-    Percent_Filter = 92
-    #count = 1
-    for equip_postion in range(1,count+1):
+
+    percent_filter = 92
+    #count = 1 # override for testing
+    equip_postion_max = 0
+    equip_postion = -1
+    for current_equip_postion in range(1,count+1):
         data_base = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname,
                                                     max_count, schema,
-                                                    equip_postion, data_base, mode)
+                                                    current_equip_postion, data_base, mode)
 
-        # print('equip count = {}'.format(data_base[2][0])) # position 0 equip
-        # print('eqpipment {}, count {}'.format(data_base[1][0], data_base[0][0]))
+        dont_use_words = 1
+        first_level_tree, count_total_max = find_best_match_for_tree(schema, data_base, dont_use_words, percent_filter)
+        print('tag_part_at {}, score_total_max {}'.format(first_level_tree, count_total_max))
+        if equip_postion_max < count_total_max:
+            equip_postion = current_equip_postion
+            equip_postion_max = count_total_max
 
-    return
+    return equip_postion
