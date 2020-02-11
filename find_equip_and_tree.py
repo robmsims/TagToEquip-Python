@@ -78,41 +78,52 @@ def read_in_schema(file_name, loc_tagname, max_count):
     return schema
 
 
-def find_equip_type_position_and_import_data(file_name, loc_tagname, max_count, schema):
+def find_equip_type_position_and_import_data(file_name, loc_tagname, max_count, schema, mode, percent_filter):
     count = 0
     for chr in schema:
         if chr == "W":
             count += 1
 
-    matrix0 = [-1,-1,-1,-1,-1]
+    matrix0 = [-1,-1,-1,-1,-1] # initalise area hirearchey
     matrix = []
     equip_type_count_matrix = []
     equip_matrix = []
     data_base = [matrix0, matrix, equip_type_count_matrix, equip_matrix] # initiate a new database
 
-    mode = -1 # switch to record equipment
     search_digit = 0
 
-    percent_filter = 92
-    #count = 1 # override for testing
-    equip_postion_max = 0
-    equip_postion = -1
+    count_total_max = -1
+    first_level_tree_max = -1
+    equip_postion_max = -1
+
+    current_equip_postion = -1
     for current_equip_postion in range(1,count+1):
         data_base[0][0] = current_equip_postion
         data_base = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname,
                                                     max_count, schema, data_base, mode)
 
         dont_use_words = 1
-        first_level_tree, count_total_max = find_best_match_for_tree(schema, data_base,
+        first_level_tree, count_total = find_best_match_for_tree(schema, data_base,
                                                             dont_use_words, percent_filter)
-        print('tag_part_at {}, score_total_max {}'.format(first_level_tree, count_total_max))
-        if equip_postion_max < count_total_max:
-            equip_postion = current_equip_postion
-            equip_postion_max = count_total_max
+        print('word {}, score_total_max {}'.format(current_equip_postion, count_total))
+        if count_total > count_total_max:
+            count_total_max = count_total
+            equip_postion_max = current_equip_postion
+            first_level_tree_max = first_level_tree
 
-    if not equip_postion == current_equip_postion:
-        data_base[0][0] = equip_postion
+    if not equip_postion_max == current_equip_postion: # reload array if different pos
+        data_base[0][0] = equip_postion_max
         data_base = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname,
                                                   max_count, schema, data_base, mode)
+
+    data_base[0][1] = first_level_tree_max
+    return data_base
+
+def find_tree(file_name, schema, data_base, loc_tagname, max_count, mode, percent_filter):
+    percent_score_stored_tree_parts_prev = 1
+    equip_postion = data_base[0][0]
+    first_level_tree = data_base[0][1]
+
+    print('first level is at schema position {}'.format(first_level_tree+1)) # convert to 1 base
 
     return data_base
