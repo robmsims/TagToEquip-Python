@@ -31,8 +31,9 @@ def main(file_name = ''):
     print('schema = {}'.format(top_schema))
 
     # get position of equipment type
-    schema_equip_position, data_base = find_equip_and_tree.find_equip_type_position_and_import_data(
+    data_base = find_equip_and_tree.find_equip_type_position_and_import_data(
         file_name, loc_tagname, max_count, top_schema)
+    schema_equip_position = data_base[0][0]
     print('equipment is located at position {} in the schema'.format(schema_equip_position))
 
     # get area hierachey

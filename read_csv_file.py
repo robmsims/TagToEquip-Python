@@ -27,12 +27,14 @@ def send_tree_part(tag_part, index, g_tag, data_base, mode, schema):
 
     return
 
-def send_tag_to_matrix(search_digit, g_tag, schema,
-                    equip_postion, data_base, mode,
-                    first_level_tree, second_level_tree,
-                    third_level_tree, fourth_level_tree):
+def send_tag_to_matrix(search_digit, g_tag, schema, data_base, mode):
+    matrix0 = data_base[0]
+    equip_postion = matrix0[0]
+    first_level_tree = matrix0[1]
+    second_level_tree = matrix0[2]
+    third_level_tree = matrix0[3]
+    fourth_level_tree = matrix0[4]
 
-    #matrix0 = data_base[0]
     matrix = data_base[1]
     equip_type_count_matrix = data_base[2]
     equip_matrix = data_base[3]
@@ -110,11 +112,15 @@ def get_schema(tag):
 
 
 def move_scenario_data_to_array(search_digit, file_name, loc_tagname, max_count, schema,
-                                equip_postion, data_base, mode,
-                                first_level_tree=-1, second_level_tree=-1,
-                                third_level_tree=-1, fourth_level_tree=-1):
+                                data_base, mode):
 
-    matrix0 = [] #data_base[0]
+    matrix0 = data_base[0]
+    equip_postion = matrix0[0]
+    first_level_tree = matrix0[1]
+    second_level_tree = matrix0[2]
+    third_level_tree = matrix0[3]
+    fourth_level_tree = matrix0[4]
+
     matrix = []
 
     equip_type_count_matrix = data_base[2]
@@ -134,11 +140,7 @@ def move_scenario_data_to_array(search_digit, file_name, loc_tagname, max_count,
                     tag = read_in_data(loc_tagname, read_line.strip())
                     current_schema, g_tag = get_schema(tag)
                     if current_schema == schema:
-                        send_tag_to_matrix(search_digit, g_tag, schema,
-                                            equip_postion, data_base, mode,
-                                            first_level_tree, second_level_tree,
-                                            third_level_tree, fourth_level_tree)
-
+                        send_tag_to_matrix(search_digit, g_tag, schema, data_base, mode)
                         count += 1
                         if count == max_count:
                             break

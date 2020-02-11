@@ -84,24 +84,23 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, max_count, 
         if chr == "W":
             count += 1
 
-    matrix0 = []
+    matrix0 = [-1,-1,-1,-1,-1]
     matrix = []
     equip_type_count_matrix = []
     equip_matrix = []
-    data_base = [matrix0, matrix, equip_type_count_matrix, equip_matrix]
+    data_base = [matrix0, matrix, equip_type_count_matrix, equip_matrix] # initiate a new database
 
     mode = -1 # switch to record equipment
     search_digit = 0
-
 
     percent_filter = 92
     #count = 1 # override for testing
     equip_postion_max = 0
     equip_postion = -1
     for current_equip_postion in range(1,count+1):
+        data_base[0][0] = current_equip_postion
         data_base = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname,
-                                                    max_count, schema,
-                                                    current_equip_postion, data_base, mode)
+                                                    max_count, schema, data_base, mode)
 
         dont_use_words = 1
         first_level_tree, count_total_max = find_best_match_for_tree(schema, data_base,
@@ -112,7 +111,8 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, max_count, 
             equip_postion_max = count_total_max
 
     if not equip_postion == current_equip_postion:
+        data_base[0][0] = equip_postion
         data_base = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname,
-                                                  max_count, schema,
-                                                  equip_postion , data_base, mode)
-    return equip_postion,data_base
+                                                  max_count, schema, data_base, mode)
+
+    return data_base
