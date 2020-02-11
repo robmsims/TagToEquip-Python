@@ -7,7 +7,6 @@ def find_best_match_for_tree(schema, data_base, dont_use_words, percent_filter):
         filter_min = percent_filter
 
     score_total_max = 0
-    score_total_prev = 0
     tag_part_at_max = -1
     for current_filter in range(percent_filter, filter_min-1, -1):
         score_total_max = 0
@@ -20,20 +19,18 @@ def find_best_match_for_tree(schema, data_base, dont_use_words, percent_filter):
             if not char.isalpha():
                 continue
 
-            # print('tag_part = {}, char = {}'.format(tag_part, char))
-
             score_total = count_equip.add_highest_count_of_stored_tree_parts(tag_part,
                                             data_base, score_total_max, current_filter)
 
             if score_total_max < score_total:
                 if score_total_prev < score_total_max:
-                    score_total_prev = score_total_max # record previous max
+                    score_total_prev = score_total_max  # record previous max
                     
                 score_total_max = score_total
                 tag_part_at_max = tag_part
 
             elif score_total_prev < score_total:
-                score_total_prev = score_total # if two scores are the same record second as prev
+                score_total_prev = score_total  # if two scores are the same record second as prev
 
         if not score_total_max == 0:
             if score_total_prev/score_total_max < percent_filter/100.0:
@@ -67,7 +64,7 @@ def read_in_schema(file_name, loc_tagname, max_count):
     data_block.sort()
     for current_schema in data_block:
         if not last_schema == current_schema:
-            count = 0 # reset count on change of schema
+            count = 0  # reset count on change of schema
 
         last_schema = current_schema
         count += 1
@@ -84,11 +81,11 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, max_count, 
         if chr == "W":
             count += 1
 
-    matrix0 = [-1,-1,-1,-1,-1] # initalise area hirearchey
+    matrix0 = [-1,-1,-1,-1,-1]  # initalise area hirearchey
     matrix = []
     equip_type_count_matrix = []
     equip_matrix = []
-    data_base = [matrix0, matrix, equip_type_count_matrix, equip_matrix] # initiate a new database
+    data_base = [matrix0, matrix, equip_type_count_matrix, equip_matrix]  # initiate a new database
 
     search_digit = 0
 
@@ -111,7 +108,7 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, max_count, 
             equip_postion_max = current_equip_postion
             first_level_tree_max = first_level_tree
 
-    if not equip_postion_max == current_equip_postion: # reload array if different pos
+    if not equip_postion_max == current_equip_postion:  # reload array if different pos
         data_base[0][0] = equip_postion_max
         data_base = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname,
                                                   max_count, schema, data_base, mode)
@@ -119,22 +116,22 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, max_count, 
     data_base[0][1] = first_level_tree_max
     return data_base
 
-def find_tree(file_name, schema, data_base, loc_tagname, max_count, mode, percent_filter):
+def find_tree(file_name, schema, data_base, loc_tagname, max_count, mode, filter, percent_filter):
     search_digit = 0
     dont_use_words = 1
     equip_postion = data_base[0][0]
     first_level_tree = data_base[0][1]
 
-    print('first level is at schema position {}'.format(first_level_tree+1)) # convert to 1 base
+    print('first level is at schema position {}'.format(first_level_tree+1))  # convert to 1 base
 
-    data_base = count_equip.filter_equipment(data_base, first_level_tree, percent_filter)
+    data_base = count_equip.filter_equipment(data_base, first_level_tree, filter)
     data_base = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname,
                                                           max_count, schema, data_base, mode)
     second_level_tree, count_total = find_best_match_for_tree(schema, data_base,
                                                              dont_use_words, percent_filter)
     if second_level_tree >= 0:
         data_base[0][2] = second_level_tree
-        print('second level is at schema position {}'.format(second_level_tree+1)) # convert to 1 base
+        print('second level is at schema position {}'.format(second_level_tree+1))  # convert to 1 base
 
         data_base = count_equip.filter_equipment(data_base, second_level_tree, percent_filter)
         data_base = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname,

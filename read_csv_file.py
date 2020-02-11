@@ -1,6 +1,6 @@
 def send_tree_part(tag_part, index, g_tag, data_base, mode, schema):
     if mode < 1:
-        mode = 1 # set to 1 chr read in mode
+        mode = 1  # set to 1 chr read in mode
 
     if tag_part + mode > len(schema):
         return
@@ -10,15 +10,15 @@ def send_tree_part(tag_part, index, g_tag, data_base, mode, schema):
     if not schema[tag_part: tag_part + 1]=='N':
         return
 
-    matrix = data_base[1] # get list of dictionary elements list
-    dict_matrix = matrix[index] # get list containing branches for this equipment
+    matrix = data_base[1]  # get list of dictionary elements list
+    dict_matrix = matrix[index]  # get list containing branches for this equipment
 
     area = g_tag[tag_part]
     if mode == 2:
         area = area + g_tag[tag_part+1]
 
     if tag_part not in dict_matrix:
-        dict_matrix[tag_part] = {area: 0} # create first dictionary entry at tag_part
+        dict_matrix[tag_part] = {area: 0}  # create first dictionary entry at tag_part
 
     if area not in dict_matrix[tag_part]:
         dict_matrix[tag_part][area] = 0
@@ -109,7 +109,6 @@ def get_schema(tag):
         if char == "\"":
             continue
 
-        # print('character {}'.format(chr)) - for debugging
         if char.isalpha():
             if not type == "W":
                 type = "W"
@@ -124,11 +123,10 @@ def get_schema(tag):
             g_tag.append(char)
 
         if not char.isalnum():
-            type = char # record delineator type
+            type = char  # record delineator type
             schema = schema + type
             g_tag.append(char)
 
-    # print('g_tag = {}'.format(g_tag)) # for debuging
     return schema, g_tag
 
 
