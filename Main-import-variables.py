@@ -26,14 +26,16 @@ def main(file_name = ''):
     print('Equipment I/O Device {}'.format(loc_iodev))
 
     # get most common schema
-    max_count = 200000 # limit read in while testing
+    max_count = 2000000 # limit read in while testing
     top_schema = find_equip_and_tree.read_in_schema(file_name, loc_tagname, max_count)
     print('schema = {}'.format(top_schema))
 
     # get position of equipment type
-    schema_equip_position = find_equip_and_tree.find_equip_type_position_and_import_data(
+    schema_equip_position, data_base = find_equip_and_tree.find_equip_type_position_and_import_data(
         file_name, loc_tagname, max_count, top_schema)
     print('equipment is located at position {} in the schema'.format(schema_equip_position))
+
+    # get area hierachey
 
 
 if __name__ == '__main__':

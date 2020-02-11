@@ -104,10 +104,15 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, max_count, 
                                                     current_equip_postion, data_base, mode)
 
         dont_use_words = 1
-        first_level_tree, count_total_max = find_best_match_for_tree(schema, data_base, dont_use_words, percent_filter)
+        first_level_tree, count_total_max = find_best_match_for_tree(schema, data_base,
+                                                            dont_use_words, percent_filter)
         print('tag_part_at {}, score_total_max {}'.format(first_level_tree, count_total_max))
         if equip_postion_max < count_total_max:
             equip_postion = current_equip_postion
             equip_postion_max = count_total_max
 
-    return equip_postion
+    if not equip_postion == current_equip_postion:
+        data_base = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname,
+                                                  max_count, schema,
+                                                  equip_postion , data_base, mode)
+    return equip_postion,data_base
