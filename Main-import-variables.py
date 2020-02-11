@@ -50,6 +50,7 @@ def main(file_name = ''):
 
     # get area hierachey
     if not first_level_tree < 0:
+        percent_filter = 90
         data_base = find_equip_and_tree.find_tree(file_name, top_schema, data_base,
                                               loc_tagname, max_count, mode, percent_filter)
 

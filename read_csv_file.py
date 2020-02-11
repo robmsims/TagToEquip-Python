@@ -55,12 +55,33 @@ def send_tag_to_matrix(search_digit, g_tag, schema, data_base, mode):
         if not eq_part in equip_matrix:
             equip_matrix.append(eq_part)
             equip_type_count_matrix.append(0)
-            matrix.append(dict()) # append an empty list for equip position
 
         index = equip_matrix.index(eq_part)
         equip_type_count_matrix[index] += 1
+    elif search_digit == 0:
+        if first_level_tree >= 0:
+            eq_part = eq_part + '.' + g_tag[first_level_tree]
+            if mode == 2:
+                eq_part = eq_part + g_tag[first_level_tree + 1]
+
+        if second_level_tree >= 0:
+            eq_part = eq_part + '.' + g_tag[second_level_tree]
+            if mode == 2:
+                eq_part = eq_part + g_tag[second_level_tree + 1]
+
+        if third_level_tree >= 0:
+            eq_part = eq_part + '.' + g_tag[third_level_tree]
+            if mode == 2:
+                eq_part = eq_part + g_tag[third_level_tree + 1]
+
+    if not eq_part in equip_matrix:
+        return
 
     index = equip_matrix.index(eq_part)
+
+    if not index in matrix:
+        matrix[index] = dict()  # append an empty dict for equip index position
+
     for tag_part in range(0, len(schema)):
         if not fourth_level_tree == tag_part:
             if not third_level_tree == tag_part:
@@ -121,7 +142,7 @@ def move_scenario_data_to_array(search_digit, file_name, loc_tagname, max_count,
     third_level_tree = matrix0[3]
     fourth_level_tree = matrix0[4]
 
-    matrix = []
+    matrix = dict()
 
     equip_type_count_matrix = data_base[2]
     equip_matrix = data_base[3]

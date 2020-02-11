@@ -120,10 +120,20 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, max_count, 
     return data_base
 
 def find_tree(file_name, schema, data_base, loc_tagname, max_count, mode, percent_filter):
-    percent_score_stored_tree_parts_prev = 1
+    search_digit = 0
+    dont_use_words = 1
     equip_postion = data_base[0][0]
     first_level_tree = data_base[0][1]
 
     print('first level is at schema position {}'.format(first_level_tree+1)) # convert to 1 base
+
+    data_base = count_equip.filter_equipment(data_base, first_level_tree, percent_filter)
+    data_base = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname,
+                                                          max_count, schema, data_base, mode)
+    second_level_tree, count_total = find_best_match_for_tree(schema, data_base,
+                                                             dont_use_words, percent_filter)
+    data_base[0][2] = second_level_tree
+    print('second level is at schema position {}'.format(second_level_tree+1)) # convert to 1 base
+
 
     return data_base
