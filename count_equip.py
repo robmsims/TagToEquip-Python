@@ -65,6 +65,12 @@ def filter_equipment(data_base, tag_part, percent_filter):
     equip_matrix = data_base[3]
     equip_type_total = len(equip_matrix) # number of equipment types
     for index in range(equip_type_total):
+        if index not in matrix:
+            continue
+
+        if tag_part not in matrix[index]:
+            continue
+
         num_tree = len(matrix[index][tag_part]) # number of tree branches
         #print('num_tree {} equip {}'.format(num_tree, equip_matrix[index]))
         if num_tree > 0:

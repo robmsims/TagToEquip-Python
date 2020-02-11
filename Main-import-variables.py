@@ -44,7 +44,7 @@ def main(file_name = ''):
         mode = 2 # ichr area designation
         percent_filter = 98
         data_base = find_equip_and_tree.find_equip_type_position_and_import_data(
-            file_name, loc_tagname, max_count, top_schema, mode, percent_filter)
+                        file_name, loc_tagname, max_count, top_schema, mode, percent_filter)
         schema_equip_position = data_base[0][0]
         print('equipment is located at word {} in the schema'.format(schema_equip_position))
 
@@ -53,6 +53,8 @@ def main(file_name = ''):
         percent_filter = 90
         data_base = find_equip_and_tree.find_tree(file_name, top_schema, data_base,
                                               loc_tagname, max_count, mode, percent_filter)
+
+    # sanitise area list
 
 
 if __name__ == '__main__':

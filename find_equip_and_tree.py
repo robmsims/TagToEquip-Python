@@ -132,8 +132,28 @@ def find_tree(file_name, schema, data_base, loc_tagname, max_count, mode, percen
                                                           max_count, schema, data_base, mode)
     second_level_tree, count_total = find_best_match_for_tree(schema, data_base,
                                                              dont_use_words, percent_filter)
-    data_base[0][2] = second_level_tree
-    print('second level is at schema position {}'.format(second_level_tree+1)) # convert to 1 base
+    if second_level_tree >= 0:
+        data_base[0][2] = second_level_tree
+        print('second level is at schema position {}'.format(second_level_tree+1)) # convert to 1 base
 
+        data_base = count_equip.filter_equipment(data_base, second_level_tree, percent_filter)
+        data_base = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname,
+                                                              max_count, schema, data_base, mode)
+        third_level_tree, count_total = find_best_match_for_tree(schema, data_base,
+                                                                 dont_use_words, percent_filter)
+
+    if third_level_tree >= 0:
+        data_base[0][3] = third_level_tree
+        print('third level is at schema position {}'.format(third_level_tree + 1))  # convert to 1 base
+
+        data_base = count_equip.filter_equipment(data_base, third_level_tree, percent_filter)
+        data_base = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname,
+                                                              max_count, schema, data_base, mode)
+        fourth_level_tree, count_total = find_best_match_for_tree(schema, data_base,
+                                                                 dont_use_words, percent_filter)
+
+    if fourth_level_tree >= 0:
+        data_base[0][4] = fourth_level_tree
+        print('fourth level is at schema position {}'.format(fourth_level_tree + 1))  # convert to 1 base
 
     return data_base

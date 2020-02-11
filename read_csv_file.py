@@ -17,10 +17,10 @@ def send_tree_part(tag_part, index, g_tag, data_base, mode, schema):
     if mode == 2:
         area = area + g_tag[tag_part+1]
 
-    if not tag_part in dict_matrix:
+    if tag_part not in dict_matrix:
         dict_matrix[tag_part] = {area: 0} # create first dictionary entry at tag_part
 
-    if not area in dict_matrix[tag_part]:
+    if area not in dict_matrix[tag_part]:
         dict_matrix[tag_part][area] = 0
 
     dict_matrix[tag_part][area] += 1
@@ -52,7 +52,7 @@ def send_tag_to_matrix(search_digit, g_tag, schema, data_base, mode):
     eq_part = g_tag[equip_level_tree]
 
     if first_level_tree == -1:
-        if not eq_part in equip_matrix:
+        if eq_part not in equip_matrix:
             equip_matrix.append(eq_part)
             equip_type_count_matrix.append(0)
 
@@ -74,12 +74,12 @@ def send_tag_to_matrix(search_digit, g_tag, schema, data_base, mode):
             if mode == 2:
                 eq_part = eq_part + g_tag[third_level_tree + 1]
 
-    if not eq_part in equip_matrix:
+    if eq_part not in equip_matrix:
         return
 
     index = equip_matrix.index(eq_part)
 
-    if not index in matrix:
+    if index not in matrix:
         matrix[index] = dict()  # append an empty dict for equip index position
 
     for tag_part in range(0, len(schema)):
