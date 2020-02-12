@@ -95,7 +95,7 @@ def main(file_name = ''):
         fourth_level_tree = -1
 
     # print final tree
-    print('---- final tree order')
+    #print('---- final tree order')
     if first_level_tree >= 0:
         print('first level is at schema position {}'.format(first_level_tree+1))  # convert to 1 base
     if second_level_tree>= 0:
@@ -105,10 +105,21 @@ def main(file_name = ''):
     if fourth_level_tree >= 0:
         print('fourth level is at schema position {}'.format(fourth_level_tree+1))  # convert to 1 base
 
+    # find the item name
+    # re read in equipment
     data_base[0][1] = first_level_tree
     data_base[0][2] = second_level_tree
     data_base[0][3] = third_level_tree
     data_base[0][4] = fourth_level_tree
+
+    data_base, is_item_digits_found = find_equip_and_tree.find_item(file_name, loc_tagname,
+                                                            max_count, top_schema, data_base, mode)
+
+    if is_item_digits_found:
+        last_digit = data_base[0][5]
+        first_digit = data_base[0][6]
+        print('item found last digit position {}, first digit position {}'
+                                                            .format(last_digit+1, first_digit+1))
 
 
 if __name__ == '__main__':
