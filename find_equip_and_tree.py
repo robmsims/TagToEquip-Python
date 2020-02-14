@@ -95,22 +95,32 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, max_count, 
     first_level_tree_max = -1
     equip_postion_max = -1
 
-    current_equip_postion = -1
-    for current_equip_postion in range(1,count+1):
-        data_base[0][0] = current_equip_postion
+    equip_level_tree = -1
+    for current_equip_postion in range(1, count+1):
+        count = 0
+        equip_level_tree = 0
+        for char in schema:
+            equip_level_tree += 1
+            if char == "W":
+                count += 1
+                if count == current_equip_postion:
+                    break
+
+        equip_level_tree -= 1
+        data_base[0][0] = equip_level_tree
         data_base,_ = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname,
                                                             max_count, schema, data_base, mode)
 
         dont_use_words = 1
         first_level_tree, count_total = find_best_match_for_tree(schema, data_base,
                                                             dont_use_words, percent_filter)
-        #print('word {}, score_total_max {}'.format(current_equip_postion, count_total))
+        #print('word position {}, score_total_max {}'.format(equip_level_tree, count_total))
         if count_total > count_total_max:
             count_total_max = count_total
-            equip_postion_max = current_equip_postion
+            equip_postion_max = equip_level_tree
             first_level_tree_max = first_level_tree
 
-    if not equip_postion_max == current_equip_postion:  # reload array if different pos
+    if not equip_postion_max == equip_level_tree:  # reload array if different pos
         data_base[0][0] = equip_postion_max
         data_base,_ = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname,
                                                   max_count, schema, data_base, mode)
@@ -158,6 +168,7 @@ def find_tree(file_name, schema, data_base, loc_tagname, max_count, mode, filter
     return data_base
 
 def find_item(file_name, loc_tagname, max_count, schema, data_base, mode):
+    equip_level_tree = data_base[0][0]
     first_level_tree = data_base[0][1]
     second_level_tree = data_base[0][2]
     third_level_tree = data_base[0][3]
@@ -177,8 +188,27 @@ def find_item(file_name, loc_tagname, max_count, schema, data_base, mode):
 
     search_digit = 1
     first_digit = len(schema)-1
-    for l_digit in range(first_digit, last_digit - 1, -1):
+    for l_digit in range(first_digit, - 1, -1):
         # print('try last digit {}, first digit {}'.format(l_digit+1, first_digit+1))
+        if l_digit == fourth_level_tree:
+            data_base[0][4] = -1
+
+        if l_digit == third_level_tree:
+            data_base[0][4] = -1
+            data_base[0][3] = -1
+
+        if l_digit == second_level_tree:
+            data_base[0][4] = -1
+            data_base[0][3] = -1
+            data_base[0][2] = -1
+
+        if l_digit == first_level_tree or l_digit == equip_level_tree :
+            data_base[0][4] = -1
+            data_base[0][3] = -1
+            data_base[0][2] = -1
+            data_base[0][1] = -1
+            data_base[0][0] = -1
+
         data_base[0][5] = l_digit
         data_base[0][6] = first_digit
         data_base, is_item_digits_found = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname,

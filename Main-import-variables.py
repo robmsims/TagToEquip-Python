@@ -35,8 +35,6 @@ def main(file_name = ''):
     percent_filter = 92
     data_base = find_equip_and_tree.find_equip_type_position_and_import_data(
                     file_name, loc_tagname, max_count, top_schema, mode, percent_filter)
-    schema_equip_position = data_base[0][0]
-    print('equipment is located at word {} in the schema'.format(schema_equip_position))
 
     # is 2 character mode needed
     first_level_tree = data_base[0][1]
@@ -45,8 +43,6 @@ def main(file_name = ''):
         percent_filter = 98
         data_base = find_equip_and_tree.find_equip_type_position_and_import_data(
                         file_name, loc_tagname, max_count, top_schema, mode, percent_filter)
-        schema_equip_position = data_base[0][0]
-        print('equipment is located at word {} in the schema'.format(schema_equip_position))
 
     # get area hierachey
     if first_level_tree >= 0:
@@ -85,26 +81,6 @@ def main(file_name = ''):
         third_level_tree = -1
         fourth_level_tree = -1
 
-    # sanitise area list spaceing
-    area_spaceing = second_level_tree - first_level_tree
-    if area_spaceing < third_level_tree - second_level_tree:
-        third_level_tree = -1
-        fourth_level_tree = -1
-
-    if area_spaceing < fourth_level_tree - third_level_tree:
-        fourth_level_tree = -1
-
-    # print final tree
-    #print('---- final tree order')
-    if first_level_tree >= 0:
-        print('first level is at schema position {}'.format(first_level_tree+1))  # convert to 1 base
-    if second_level_tree>= 0:
-        print('second level is at schema position {}'.format(second_level_tree+1))  # convert to 1 base
-    if third_level_tree >= 0:
-        print('third level is at schema position {}'.format(third_level_tree+1))  # convert to 1 base
-    if fourth_level_tree >= 0:
-        print('fourth level is at schema position {}'.format(fourth_level_tree+1))  # convert to 1 base
-
     # find the item name
     # re read in equipment
     data_base[0][1] = first_level_tree
@@ -118,8 +94,25 @@ def main(file_name = ''):
     if is_item_digits_found:
         last_digit = data_base[0][5]
         first_digit = data_base[0][6]
-        print('item found last digit position {}, first digit position {}'
-                                                            .format(last_digit+1, first_digit+1))
+        print('item found from position {}, to {}'.format(last_digit+1, first_digit+1))
+
+    # print final tree
+    equip_level_tree = data_base[0][0]
+    first_level_tree = data_base[0][1]
+    second_level_tree = data_base[0][2]
+    third_level_tree = data_base[0][3]
+    fourth_level_tree = data_base[0][4]
+    if equip_level_tree >= 0:
+        print('equipment is located at position {} in the schema'.format(equip_level_tree + 1))
+    if first_level_tree >= 0:
+        print('first level is at schema position {}'.format(first_level_tree + 1))  # convert to 1 base
+    if second_level_tree >= 0:
+        print('second level is at schema position {}'.format(second_level_tree + 1))  # convert to 1 base
+    if third_level_tree >= 0:
+        print('third level is at schema position {}'.format(third_level_tree + 1))  # convert to 1 base
+    if fourth_level_tree >= 0:
+        print('fourth level is at schema position {}'.format(fourth_level_tree + 1))  # convert to 1 base
+
 
 
 if __name__ == '__main__':

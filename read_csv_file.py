@@ -1,5 +1,5 @@
 def send_item_parts(index, g_tag, data_base, mode, schema):
-    equip_postion = data_base[0][0]
+    equip_level_tree = data_base[0][0]
     first_level_tree = data_base[0][1]
     second_level_tree = data_base[0][2]
     third_level_tree = data_base[0][3]
@@ -9,17 +9,6 @@ def send_item_parts(index, g_tag, data_base, mode, schema):
 
     matrix = data_base[1]  # get list of dictionary elements list
     dict_matrix = matrix[index]  # get list containing tags for this equipment
-
-    count = 0
-    equip_level_tree = 0
-    for char in schema:
-        equip_level_tree += 1
-        if char == "W":
-            count += 1
-            if count == equip_postion:
-                break
-
-    equip_level_tree -= 1
 
     is_item_digits_found = 1
     tag = ''
@@ -84,7 +73,7 @@ def send_tree_part(tag_part, index, g_tag, data_base, mode, schema):
 
 def send_tag_to_matrix(search_digit, g_tag, schema, data_base, mode):
     matrix0 = data_base[0]
-    equip_postion = matrix0[0]
+    equip_level_tree = matrix0[0]
     first_level_tree = matrix0[1]
     second_level_tree = matrix0[2]
     third_level_tree = matrix0[3]
@@ -96,16 +85,6 @@ def send_tag_to_matrix(search_digit, g_tag, schema, data_base, mode):
     equip_type_count_matrix = data_base[2]
     equip_matrix = data_base[3]
 
-    count = 0
-    equip_level_tree = 0
-    for char in schema:
-        equip_level_tree += 1
-        if char == "W":
-            count += 1
-            if count == equip_postion:
-                break
-
-    equip_level_tree -= 1
     eq_part = g_tag[equip_level_tree]
 
     if first_level_tree == -1 or not search_digit == 0:
@@ -192,7 +171,7 @@ def move_scenario_data_to_array(search_digit, file_name, loc_tagname, max_count,
                                 data_base, mode):
 
     matrix0 = data_base[0]
-    equip_postion = matrix0[0]
+    equip_level_tree = matrix0[0]
     first_level_tree = matrix0[1]
     second_level_tree = matrix0[2]
     third_level_tree = matrix0[3]
