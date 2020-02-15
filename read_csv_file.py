@@ -1,4 +1,4 @@
-def send_item_parts(index, g_tag, data_base, mode, schema):
+def send_item_parts(index, g_tag, data_base, mode, schema, cluster):
     equip_level_tree = data_base[0][0]
     first_level_tree = data_base[0][1]
     second_level_tree = data_base[0][2]
@@ -11,25 +11,33 @@ def send_item_parts(index, g_tag, data_base, mode, schema):
     dict_matrix = matrix[index]  # get list containing tags for this equipment
 
     is_item_digits_found = 1
-    tag = ''
+    tag = cluster+"."
     for tag_part in range(0, len(schema)):  # only record on first part of item
         add_digit = 0
         char = schema[tag_part:tag_part+1]
         if not char.isalpha:
-            is_item_digits_found = 0  # abort search for duplicates as we have a deliniator
+            is_item_digits_found = 0  # abort search for duplicates as we have a delineator
             break
 
         if tag_part == equip_level_tree:
             add_digit = 1
         elif tag_part == first_level_tree:
             add_digit = 1
+        elif tag_part == first_level_tree+1 and mode == 2:
+            add_digit = 1
         elif tag_part == second_level_tree:
+            add_digit = 1
+        elif tag_part == second_level_tree+1 and mode == 2:
             add_digit = 1
         elif tag_part == third_level_tree:
             add_digit = 1
+        elif tag_part == third_level_tree+1 and mode == 2:
+            add_digit = 1
         elif tag_part == fourth_level_tree:
             add_digit = 1
-        elif tag_part >= last_digit and tag_part <= first_digit:
+        elif tag_part == fourth_level_tree+1 and mode == 2:
+            add_digit = 1
+        elif tag_part >= last_digit:
             add_digit = 1
 
         if add_digit == 1:
@@ -71,7 +79,7 @@ def send_tree_part(tag_part, index, g_tag, data_base, mode, schema):
     dict_matrix[tag_part][area] += 1
 
 
-def send_tag_to_matrix(search_digit, g_tag, schema, data_base, mode):
+def send_tag_to_matrix(search_digit, g_tag, schema, data_base, mode, cluster):
     matrix0 = data_base[0]
     equip_level_tree = matrix0[0]
     first_level_tree = matrix0[1]
@@ -127,7 +135,7 @@ def send_tag_to_matrix(search_digit, g_tag, schema, data_base, mode):
                             if not equip_level_tree == tag_part:
                                 send_tree_part(tag_part, index, g_tag, data_base, mode, schema)
     else:
-        is_item_digits_found = send_item_parts(index, g_tag, data_base, mode, schema)
+        is_item_digits_found = send_item_parts(index, g_tag, data_base, mode, schema, cluster)
 
     return is_item_digits_found
 
@@ -167,7 +175,7 @@ def get_schema(tag):
     return schema, g_tag
 
 
-def move_scenario_data_to_array(search_digit, file_name, loc_tagname, max_count, schema,
+def move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluster, max_count, schema,
                                 data_base, mode):
 
     matrix0 = data_base[0]
@@ -193,9 +201,11 @@ def move_scenario_data_to_array(search_digit, file_name, loc_tagname, max_count,
         for read_line in f:
             if read_in_record_count > 0:
                 tag = read_in_data(loc_tagname, read_line.strip())
+                cluster = read_in_data(loc_cluster, read_line.strip())
                 current_schema, g_tag = get_schema(tag)
                 if current_schema == schema:
-                    is_item_digits_found = send_tag_to_matrix(search_digit, g_tag, schema, data_base, mode)
+                    is_item_digits_found = send_tag_to_matrix(search_digit, g_tag, current_schema,
+                                                              data_base, mode, cluster)
                     if not is_item_digits_found:
                         break
 

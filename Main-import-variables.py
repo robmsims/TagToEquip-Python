@@ -14,16 +14,18 @@ def main(file_name = ''):
 
     # get header file
     header = find_equip_and_tree.read_first_line(file_name)
+    print(header)
+
     loc_equip = header.index('equipment')
     loc_item = header.index('item name')
     loc_tagname = header.index('tag name')
     loc_iodev = header.index('i/o device')
-
-    print(header)
+    loc_cluster = header.index('cluster name')
     print('Equipment loation {}'.format(loc_equip))
     print('Equipment Item location {}'.format(loc_item))
     print('Tag Name {}'.format(loc_tagname))
     print('Equipment I/O Device {}'.format(loc_iodev))
+    print('Equipment Cluster {}'.format(loc_cluster))
 
     # get most common schema
     max_count = 2000000  # limit read in while testing
@@ -34,7 +36,7 @@ def main(file_name = ''):
     mode = 1  # 1 character area designation
     percent_filter = 92
     data_base = find_equip_and_tree.find_equip_type_position_and_import_data(
-                    file_name, loc_tagname, max_count, top_schema, mode, percent_filter)
+                    file_name, loc_tagname, loc_cluster, max_count, top_schema, mode, percent_filter)
 
     # is 2 character mode needed
     first_level_tree = data_base[0][1]
@@ -42,13 +44,13 @@ def main(file_name = ''):
         mode = 2  # chr area designation
         percent_filter = 98
         data_base = find_equip_and_tree.find_equip_type_position_and_import_data(
-                        file_name, loc_tagname, max_count, top_schema, mode, percent_filter)
+                        file_name, loc_tagname, loc_cluster, max_count, top_schema, mode, percent_filter)
 
     # get area hierachey
     if first_level_tree >= 0:
         filter = 90
         data_base = find_equip_and_tree.find_tree(file_name, top_schema, data_base,
-                                    loc_tagname, max_count, mode, filter, percent_filter)
+                                    loc_tagname, loc_cluster, max_count, mode, filter, percent_filter)
 
     # sanitise area list order
     first_level_tree = data_base[0][1]
@@ -57,12 +59,12 @@ def main(file_name = ''):
         if second_level_tree < first_level_tree:
             # re read and make second_level_tree  => first_level_tree
             data_base = find_equip_and_tree.find_equip_type_position_and_import_data(
-                    file_name, loc_tagname, max_count, top_schema, mode, percent_filter)
+                    file_name, loc_tagname, loc_cluster, max_count, top_schema, mode, percent_filter)
             data_base[0][1] = second_level_tree
             # get area hierachey again
             filter = 90
             data_base = find_equip_and_tree.find_tree(file_name, top_schema, data_base,
-                                    loc_tagname, max_count, mode, filter, percent_filter)
+                                    loc_tagname, loc_cluster, max_count, mode, filter, percent_filter)
 
     first_level_tree = data_base[0][1]
     second_level_tree = data_base[0][2]
@@ -88,7 +90,7 @@ def main(file_name = ''):
     data_base[0][3] = third_level_tree
     data_base[0][4] = fourth_level_tree
 
-    data_base, is_item_digits_found = find_equip_and_tree.find_item(file_name, loc_tagname,
+    data_base, is_item_digits_found = find_equip_and_tree.find_item(file_name, loc_tagname, loc_cluster,
                                                             max_count, top_schema, data_base, mode)
 
     if is_item_digits_found:
@@ -113,7 +115,40 @@ def main(file_name = ''):
     if fourth_level_tree >= 0:
         print('fourth level is at schema position {}'.format(fourth_level_tree + 1))  # convert to 1 base
 
+    # generate generic schema
+    schema = ''
+    if is_item_digits_found:
+        last_digit = data_base[0][5]
+        first_digit = data_base[0][6]
+        schema = top_schema[0:last_digit] + "I"
 
+        if equip_level_tree >= 0:
+            schema = schema[0:equip_level_tree] + "E" + schema[equip_level_tree+1:]
+
+        if first_level_tree >= 0:
+            schema = schema[0:first_level_tree] + "A" + schema[first_level_tree+1:]
+        if first_level_tree >= 0 and mode == 2:
+            schema = schema[0:first_level_tree+1] + "a" + schema[first_level_tree+2:]
+
+        if second_level_tree >= 0:
+            schema = schema[0:second_level_tree] + "B" + schema[second_level_tree+1:]
+        if second_level_tree >= 0 and mode == 2:
+            schema = schema[0:second_level_tree+1] + "b" + schema[second_level_tree+2:]
+
+        if third_level_tree >= 0:
+            schema = schema[0:third_level_tree] + "C" + schema[third_level_tree + 1:]
+        if third_level_tree >= 0 and mode == 2:
+            schema = schema[0:third_level_tree + 1] + "c" + schema[third_level_tree + 2:]
+
+        if fourth_level_tree >= 0:
+            schema = schema[0:fourth_level_tree] + "D" + schema[fourth_level_tree + 1:]
+        if fourth_level_tree >= 0 and mode == 2:
+            schema = schema[0:fourth_level_tree + 1] + "d" + schema[fourth_level_tree + 2:]
+
+    print(schema)
+
+
+    # verfy tags based on generic schema
 
 if __name__ == '__main__':
     # This is executed when called from the command line nloc_iodevot repel
