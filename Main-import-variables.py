@@ -38,6 +38,10 @@ def main(file_name = ''):
     data_base = find_equip_and_tree.find_equip_type_position_and_import_data(
                     file_name, loc_tagname, loc_cluster, max_count, top_schema, mode, percent_filter)
 
+    equip_level_tree = data_base[0][0]
+    if equip_level_tree >= 0:
+        print('equipment is located at position {} in the schema'.format(equip_level_tree + 1))
+
     # is 2 character mode needed
     first_level_tree = data_base[0][1]
     if first_level_tree < 0: # try 2ch mode
@@ -51,6 +55,8 @@ def main(file_name = ''):
         filter = 90
         data_base = find_equip_and_tree.find_tree(file_name, top_schema, data_base,
                                     loc_tagname, loc_cluster, max_count, mode, filter, percent_filter)
+
+    #return  #  debug
 
     # sanitise area list order
     first_level_tree = data_base[0][1]
@@ -104,8 +110,6 @@ def main(file_name = ''):
     second_level_tree = data_base[0][2]
     third_level_tree = data_base[0][3]
     fourth_level_tree = data_base[0][4]
-    if equip_level_tree >= 0:
-        print('equipment is located at position {} in the schema'.format(equip_level_tree + 1))
     if first_level_tree >= 0:
         print('first level is at schema position {}'.format(first_level_tree + 1))  # convert to 1 base
     if second_level_tree >= 0:

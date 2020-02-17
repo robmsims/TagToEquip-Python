@@ -7,6 +7,7 @@ def find_best_match_for_tree(schema, data_base, dont_use_words, percent_filter):
         filter_min = percent_filter
 
     score_total_max = 0
+    score_total_prev = 0
     tag_part_at_max = -1
     for current_filter in range(percent_filter, filter_min-1, -1):
         score_total_max = 0
@@ -20,12 +21,11 @@ def find_best_match_for_tree(schema, data_base, dont_use_words, percent_filter):
                 continue
 
             score_total = count_equip.add_highest_count_of_stored_tree_parts(tag_part,
-                                            data_base, score_total_max, current_filter)
+                                            data_base, score_total_prev, current_filter)
+            #print('score {} for position {}'.format(score_total, tag_part))
 
             if score_total_max < score_total:
-                if score_total_prev < score_total_max:
-                    score_total_prev = score_total_max  # record previous max
-                    
+                score_total_prev = score_total_max  # record previous max
                 score_total_max = score_total
                 tag_part_at_max = tag_part
 
@@ -33,9 +33,14 @@ def find_best_match_for_tree(schema, data_base, dont_use_words, percent_filter):
                 score_total_prev = score_total  # if two scores are the same record second as prev
 
         if not score_total_max == 0:
-            if score_total_prev/score_total_max < percent_filter/100.0:
+            if score_total_prev / score_total_max < percent_filter / 100.0:
                 break
 
+    if not score_total_max == 0:
+        if score_total_prev / score_total_max > percent_filter / 100.0:
+            score_total_max = 0
+
+    #print('position at max {}'.format(tag_part_at_max))
     return tag_part_at_max, score_total_max
 
 
@@ -141,9 +146,11 @@ def find_tree(file_name, schema, data_base, loc_tagname, loc_cluster, max_count,
                                                           max_count, schema, data_base, mode)
     second_level_tree, count_total = find_best_match_for_tree(schema, data_base,
                                                              dont_use_words, percent_filter)
+
+    #return data_base  # de bug
     if second_level_tree >= 0:
         data_base[0][2] = second_level_tree
-        #print('second level is at schema position {}'.format(second_level_tree+1))  # convert to 1 base
+        # print('second level is at schema position {}'.format(second_level_tree+1))  # convert to 1 base
 
         data_base = count_equip.filter_equipment(data_base, second_level_tree, percent_filter)
         data_base,_ = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluster,

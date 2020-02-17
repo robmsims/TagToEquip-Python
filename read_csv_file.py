@@ -7,6 +7,12 @@ def send_item_parts(index, g_tag, data_base, mode, schema, cluster):
     last_digit = data_base[0][5]
     first_digit = data_base[0][6]
 
+    char = schema[last_digit:last_digit + 1]
+    if not char.isalpha():
+        is_item_digits_found = 0  # abort search for duplicates as we have a delineator
+        #print('abort delineator found {} {}'.format(char,g_tag))
+        return is_item_digits_found
+
     matrix = data_base[1]  # get list of dictionary elements list
     dict_matrix = matrix[index]  # get list containing tags for this equipment
 
@@ -14,11 +20,6 @@ def send_item_parts(index, g_tag, data_base, mode, schema, cluster):
     tag = cluster+"."
     for tag_part in range(0, len(schema)):  # only record on first part of item
         add_digit = 0
-        char = schema[tag_part:tag_part+1]
-        if not char.isalpha:
-            is_item_digits_found = 0  # abort search for duplicates as we have a delineator
-            break
-
         if tag_part == equip_level_tree:
             add_digit = 1
         elif tag_part == first_level_tree:
@@ -48,6 +49,7 @@ def send_item_parts(index, g_tag, data_base, mode, schema, cluster):
         #print('stroring tag {}'.format(tag))
     else:
         is_item_digits_found = 0  # duplicate found aborting this search
+        #print('duplicate tag found {} g_tag {} last_digit {}'.format(tag, g_tag, last_digit))
 
     return is_item_digits_found
 
@@ -199,11 +201,17 @@ def move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluste
     count = 0
     with open(file_name, mode='rt', encoding='utf-8') as f:
         for read_line in f:
+            read_in_record_count += 1
             if read_in_record_count > 0:
                 tag = read_in_data(loc_tagname, read_line.strip())
                 cluster = read_in_data(loc_cluster, read_line.strip())
                 current_schema, g_tag = get_schema(tag)
-                if current_schema == schema:
+
+                if search_digit == 1:
+                    last_digit = data_base[0][5]
+                    schema = schema[0:last_digit]
+
+                if current_schema.find(schema) == 0:
                     is_item_digits_found = send_tag_to_matrix(search_digit, g_tag, current_schema,
                                                               data_base, mode, cluster)
                     if not is_item_digits_found:
@@ -213,6 +221,9 @@ def move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluste
                     if count == max_count:
                         break
 
-            read_in_record_count += 1
+    #if search_digit == 1:
+    #    print(schema)
+    #    print('tags read in {} out of {}. ie {} % coverage'
+    #          .format(count, read_in_record_count, 100*count/read_in_record_count))
 
     return data_base, is_item_digits_found
