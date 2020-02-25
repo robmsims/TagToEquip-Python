@@ -89,6 +89,15 @@ def main(file_name = ''):
         third_level_tree = -1
         fourth_level_tree = -1
 
+    # sanitise area list spaceing
+    area_spaceing = second_level_tree - first_level_tree
+    if area_spaceing < third_level_tree - second_level_tree:
+        third_level_tree = -1
+        fourth_level_tree = -1
+
+    if area_spaceing < fourth_level_tree - third_level_tree:
+        fourth_level_tree = -1
+
     # find the item name
     # re read in equipment
     data_base[0][1] = first_level_tree
@@ -96,63 +105,74 @@ def main(file_name = ''):
     data_base[0][3] = third_level_tree
     data_base[0][4] = fourth_level_tree
 
-    data_base, is_item_digits_found = find_equip_and_tree.find_item(file_name, loc_tagname, loc_cluster,
+    data_base, is_item_found = find_equip_and_tree.find_item(file_name, loc_tagname, loc_cluster,
                                                             max_count, top_schema, data_base, mode)
-
-    if is_item_digits_found:
-        last_digit = data_base[0][5]
-        first_digit = data_base[0][6]
-        print('item found from position {}, to {}'.format(last_digit+1, first_digit+1))
-
-    # print final tree
     equip_level_tree = data_base[0][0]
     first_level_tree = data_base[0][1]
     second_level_tree = data_base[0][2]
     third_level_tree = data_base[0][3]
     fourth_level_tree = data_base[0][4]
-    if first_level_tree >= 0:
-        print('first level is at schema position {}'.format(first_level_tree + 1))  # convert to 1 base
-    if second_level_tree >= 0:
-        print('second level is at schema position {}'.format(second_level_tree + 1))  # convert to 1 base
-    if third_level_tree >= 0:
-        print('third level is at schema position {}'.format(third_level_tree + 1))  # convert to 1 base
-    if fourth_level_tree >= 0:
-        print('fourth level is at schema position {}'.format(fourth_level_tree + 1))  # convert to 1 base
 
-    # generate generic schema
-    schema = ''
-    if is_item_digits_found:
+    if is_item_found:
         last_digit = data_base[0][5]
-        first_digit = data_base[0][6]
-        schema = top_schema[0:last_digit] + "I"
+        print('item found from position {}'.format(last_digit+1))
 
-        if equip_level_tree >= 0:
-            schema = schema[0:equip_level_tree] + "E" + schema[equip_level_tree+1:]
-
-        if first_level_tree >= 0:
-            schema = schema[0:first_level_tree] + "A" + schema[first_level_tree+1:]
-        if first_level_tree >= 0 and mode == 2:
-            schema = schema[0:first_level_tree+1] + "a" + schema[first_level_tree+2:]
-
+        # print final tree
+        print('first level is at schema position {}'.format(first_level_tree + 1))  # convert to 1 base
         if second_level_tree >= 0:
-            schema = schema[0:second_level_tree] + "B" + schema[second_level_tree+1:]
-        if second_level_tree >= 0 and mode == 2:
-            schema = schema[0:second_level_tree+1] + "b" + schema[second_level_tree+2:]
-
+            print('second level is at schema position {}'.format(second_level_tree + 1))  # convert to 1 base
         if third_level_tree >= 0:
-            schema = schema[0:third_level_tree] + "C" + schema[third_level_tree + 1:]
-        if third_level_tree >= 0 and mode == 2:
-            schema = schema[0:third_level_tree + 1] + "c" + schema[third_level_tree + 2:]
-
+            print('third level is at schema position {}'.format(third_level_tree + 1))  # convert to 1 base
         if fourth_level_tree >= 0:
-            schema = schema[0:fourth_level_tree] + "D" + schema[fourth_level_tree + 1:]
-        if fourth_level_tree >= 0 and mode == 2:
-            schema = schema[0:fourth_level_tree + 1] + "d" + schema[fourth_level_tree + 2:]
+            print('fourth level is at schema position {}'.format(fourth_level_tree + 1))  # convert to 1 base
 
-    print(schema)
+        # generate generic schema
+        schema = ''
+        if is_item_found:
+            schema = top_schema
 
+            if first_level_tree >= 0:
+                schema = schema[0:first_level_tree] + "A" + schema[first_level_tree+1:]
+                end_schema = first_level_tree
+            if first_level_tree >= 0 and mode == 2:
+                schema = schema[0:first_level_tree+1] + "a" + schema[first_level_tree+2:]
+                end_schema = first_level_tree + 1
 
-    # verfy tags based on generic schema
+            if second_level_tree >= 0:
+                schema = schema[0:second_level_tree] + "B" + schema[second_level_tree+1:]
+                end_schema = second_level_tree
+            if second_level_tree >= 0 and mode == 2:
+                schema = schema[0:second_level_tree+1] + "b" + schema[second_level_tree+2:]
+                end_schema = second_level_tree + 1
+
+            if third_level_tree >= 0:
+                schema = schema[0:third_level_tree] + "C" + schema[third_level_tree + 1:]
+                end_schema = third_level_tree
+            if third_level_tree >= 0 and mode == 2:
+                schema = schema[0:third_level_tree + 1] + "c" + schema[third_level_tree + 2:]
+                end_schema = third_level_tree + 1
+
+            if fourth_level_tree >= 0:
+                schema = schema[0:fourth_level_tree] + "D" + schema[fourth_level_tree + 1:]
+                end_schema = fourth_level_tree
+            if fourth_level_tree >= 0 and mode == 2:
+                schema = schema[0:fourth_level_tree + 1] + "d" + schema[fourth_level_tree + 2:]
+                end_schema = fourth_level_tree + 1
+
+            schema = schema[0:equip_level_tree] + "E" + schema[equip_level_tree+1:]
+            if equip_level_tree > end_schema:
+                end_schema = equip_level_tree
+
+            last_digit = data_base[0][5]
+            if last_digit > end_schema:
+                schema = schema[0:last_digit] + "I"
+            else:
+                schema = schema[0:last_digit] + "I" + schema[last_digit + 1:]
+                schema = schema[0:end_schema+1]
+                print('Warning item part start is before area digit')
+
+        print(schema)
+
 
 if __name__ == '__main__':
     # This is executed when called from the command line nloc_iodevot repel

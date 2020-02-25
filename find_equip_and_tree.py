@@ -181,18 +181,7 @@ def find_item(file_name, loc_tagname, loc_cluster, max_count, schema, data_base,
     third_level_tree = data_base[0][3]
     fourth_level_tree = data_base[0][4]
 
-    last_area = first_level_tree
-    if last_area < second_level_tree:
-        last_area = second_level_tree
-
-    if last_area < third_level_tree:
-        last_area = third_level_tree
-
-    if last_area < fourth_level_tree:
-        last_area = fourth_level_tree
-
-    last_digit = last_area + 1
-
+    is_item_found = 0
     search_digit = 1
     first_digit = len(schema)-1
     for l_digit in range(first_digit, - 1, -1):
@@ -201,19 +190,19 @@ def find_item(file_name, loc_tagname, loc_cluster, max_count, schema, data_base,
         if mode == 2:
             extra_char = 1
 
-        if l_digit == fourth_level_tree+extra_char:
+        if l_digit == fourth_level_tree + extra_char:
             data_base[0][4] = -1
 
-        if l_digit == third_level_tree+extra_char:
+        if l_digit == third_level_tree + extra_char:
             data_base[0][4] = -1
             data_base[0][3] = -1
 
-        if l_digit == second_level_tree+extra_char:
+        if l_digit == second_level_tree + extra_char:
             data_base[0][4] = -1
             data_base[0][3] = -1
             data_base[0][2] = -1
 
-        if l_digit == first_level_tree+extra_char or l_digit == equip_level_tree :
+        if l_digit == first_level_tree + extra_char or l_digit == equip_level_tree:
             data_base[0][4] = -1
             data_base[0][3] = -1
             data_base[0][2] = -1
@@ -221,10 +210,15 @@ def find_item(file_name, loc_tagname, loc_cluster, max_count, schema, data_base,
             data_base[0][0] = -1
 
         data_base[0][5] = l_digit
-        data_base[0][6] = first_digit
         data_base, is_item_digits_found = read_csv_file.move_scenario_data_to_array(search_digit, file_name,
                                                 loc_tagname, loc_cluster, max_count, schema, data_base, mode)
         if is_item_digits_found:
             break
 
-    return data_base, is_item_digits_found
+    if not data_base[0][1] == -1 and not data_base[0][0] == -1:
+        data_base[0][2] = second_level_tree
+        data_base[0][3] = third_level_tree
+        data_base[0][4] = fourth_level_tree
+        is_item_found = 1
+
+    return data_base, is_item_found
