@@ -1,6 +1,31 @@
 import read_in_tree_structure
 
 
+def read_config_file(config_file):
+    equipment_map_dict = dict()
+    with open(config_file, mode='rt', encoding='utf-8') as f:
+        for read_line in f:
+            line = read_line.strip()
+            if line == '[Schema]':
+                map_schema = f.readline().strip()
+                map_schema = map_schema[map_schema.find('=') + 1:].strip()
+
+            if line == '[Area Mapping]':
+                area_map = f.readline().strip()
+                area_map = area_map[area_map.find('=') + 1:].strip()
+
+            if line == '[Equipment Name Mapping]':
+                for read_line in f:
+                    equip_list = read_line.strip().rsplit('(')
+                    cluster = equip_list[1][0:equip_list[1].find(')')]
+                    area_numbers = equip_list[2][0:equip_list[2].find(')')]
+                    area_name = equip_list[2][equip_list[2].find('=')+1:].strip()
+                    equipment_map_dict[cluster + ':' + area_numbers] = area_name
+
+    return map_schema, area_map, equipment_map_dict
+
+
+
 def write_config(config_file, map_schema, equipment_list):
     matrix0, mode, schema = read_in_tree_structure.decode_mapping_schema(map_schema)
     equip_level_tree = matrix0[0]

@@ -8,10 +8,19 @@ import sys
 import find_equip_and_tree
 import read_in_tree_structure
 import os.path
-import write_files
+import write_read_config_file
 
 
-def get_schema_and_create_config_file(file_path):
+def update_csv_files(file_path, config_file):
+    variables = file_path + "\\variable.csv"
+    trends = file_path + "\\trends.csv"
+    alarms = file_path + "\\alarms.csv"
+    equipmnt = file_path + "\\equipment.csv"
+
+    map_schema, area_map, equipment_map_list = write_read_config_file.read_config_file(config_file)
+
+
+def get_schema_and_create_config_file(file_path, config_file):
     file_name = file_path + "\\variable.csv"
 
     # get header file
@@ -182,17 +191,18 @@ def get_schema_and_create_config_file(file_path):
 
         map_schema = schema
 
-        print('----- creating mapping file at path given')
-        config_file = file_path + "\\mapping.ini"
+        print('----- creating mapping file at path given -----')
         print('map schema {}'.format(map_schema))
 
-        #  create an equipment tree based on found schema so we can create a file for mapping
+        # create an equipment tree based on found schema so we can create a file for mapping
         data_base = read_in_tree_structure.get_equipment_tree(file_name, loc_tagname, loc_cluster,
                                                             max_count, map_schema)
 
         equipment_list = sorted(data_base[1][0])
-        print('Equipment List is {}'.format(equipment_list))
-        write_files.write_config(config_file, map_schema, equipment_list)
+        # print('Equipment List is {}'.format(equipment_list))
+        write_read_config_file.write_config(config_file, map_schema, equipment_list)
+        print('Default config file writen')
+
 
 
 def main(file_path = ''):
@@ -203,7 +213,9 @@ def main(file_path = ''):
 
     config_file_exists = os.path.isfile(config_file)
     if not config_file_exists:
-        get_schema_and_create_config_file(file_path)
+        get_schema_and_create_config_file(file_path, config_file)
+    else:
+        update_csv_files(file_path, config_file)
 
 
 if __name__ == '__main__':
