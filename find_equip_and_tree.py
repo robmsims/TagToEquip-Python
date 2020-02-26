@@ -91,7 +91,7 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, loc_cluster
 
     search_digit = 0
 
-    count_total_max = -1
+    count_total_max = 0
     first_level_tree_max = -1
     equip_postion_max = -1
 
@@ -111,10 +111,10 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, loc_cluster
         data_base,_ = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluster,
                                                             max_count, schema, data_base, mode)
 
-        dont_use_words = 1
+        dont_use_words = 0
         first_level_tree, count_total = find_best_match_for_tree(schema, data_base,
                                                             dont_use_words, percent_filter)
-        #print('word position {}, score_total_max {}'.format(equip_level_tree, count_total))
+        print('word position {}, score_total_max {}'.format(equip_level_tree, count_total))
         if count_total > count_total_max:
             count_total_max = count_total
             equip_postion_max = equip_level_tree
@@ -126,6 +126,9 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, loc_cluster
                                                   max_count, schema, data_base, mode)
 
     data_base[0][1] = first_level_tree_max
+    if count_total_max == 0:
+        data_base[0][0] = -1
+
     return data_base
 
 def find_tree(file_name, schema, data_base, loc_tagname, loc_cluster, max_count, mode, filter, percent_filter):
@@ -205,6 +208,7 @@ def find_item(file_name, loc_tagname, loc_cluster, max_count, schema, data_base,
             data_base[0][0] = -1
 
         data_base[0][5] = l_digit
+        schema = schema[0:l_digit]
         data_base, is_item_digits_found = read_csv_file.move_scenario_data_to_array(search_digit, file_name,
                                                 loc_tagname, loc_cluster, max_count, schema, data_base, mode)
         if is_item_digits_found:

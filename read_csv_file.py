@@ -74,6 +74,8 @@ def send_item_parts(index, g_tag, data_base, mode, schema, cluster):
             add_digit = 1
         elif tag_part == fourth_level_tree+1 and mode == 2:
             add_digit = 1
+        elif not g_tag[tag_part].isalpha():
+            add_digit = 1  # insert delineator
         elif tag_part >= last_digit:
             add_digit = 1
 
@@ -85,7 +87,7 @@ def send_item_parts(index, g_tag, data_base, mode, schema, cluster):
         #print('stroring tag {}'.format(tag))
     else:
         is_item_digits_found = 0  # duplicate found aborting this search
-        #print('duplicate tag found {} g_tag {} last_digit {}'.format(tag, g_tag, last_digit))
+        print('duplicate tag found {} g_tag {} last_digit {}'.format(tag, g_tag, last_digit))
 
     return is_item_digits_found
 
@@ -98,7 +100,7 @@ def send_tree_part(tag_part, index, g_tag, data_base, mode, schema):
     elif not schema[tag_part+1: tag_part + 2]=='N' and mode == 2:
         return
 
-    if not schema[tag_part: tag_part + 1]=='N':
+    if not schema[tag_part: tag_part + 1].isalpha():
         return
 
     matrix = data_base[1]  # get list of dictionary elements list
@@ -238,21 +240,19 @@ def move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluste
     data_base = [matrix0, matrix, equip_type_count_matrix, equip_matrix]
 
     is_item_digits_found = 0
-    read_in_record_count = 0
+    read_in_record_count = -1
     count = 0
     with open(file_name, mode='rt', encoding='utf-8') as f:
         for read_line in f:
             read_in_record_count += 1
-            if read_in_record_count > 1:
+            if read_in_record_count > 0:
                 tag = read_in_data(loc_tagname, read_line.strip()).strip('"')
                 cluster = read_in_data(loc_cluster, read_line.strip()).strip('"')
                 current_schema, g_tag = get_schema(tag)
 
-                if search_digit == 1:
-                    last_digit = data_base[0][5]
-                    schema = schema[0:last_digit]
-
-                if current_schema.find(schema) == 0:
+                schema_w = schema.replace('*', 'N')
+                schema_n = schema.replace('*', 'W')
+                if current_schema.find(schema_n) == 0  or current_schema.find(schema_w) == 0:
                     is_item_digits_found = send_tag_to_matrix(search_digit, g_tag, current_schema,
                                                               data_base, mode, cluster)
                     if not is_item_digits_found:

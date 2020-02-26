@@ -1,4 +1,4 @@
-import read_in_tree_structure
+import encode_decode_map_schema
 
 
 def read_config_file(config_file):
@@ -25,9 +25,8 @@ def read_config_file(config_file):
     return map_schema, area_map, equipment_map_dict
 
 
-
 def write_config(config_file, map_schema, equipment_list):
-    matrix0, mode, schema = read_in_tree_structure.decode_mapping_schema(map_schema)
+    matrix0, mode, schema = encode_decode_map_schema.decode_mapping_schema(map_schema)
     equip_level_tree = matrix0[0]
     first_level_tree = matrix0[1]
     second_level_tree = matrix0[2]
