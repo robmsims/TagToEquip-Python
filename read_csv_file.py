@@ -3,7 +3,7 @@ def store_equip(matrix_list, tree):
         matrix_list.append(tree)
 
 
-def send_equipment(g_tag, data_base, mode):
+def send_equipment(g_tag, data_base, mode, cluster):
     first_level_tree = data_base[0][1]
     second_level_tree = data_base[0][2]
     third_level_tree = data_base[0][3]
@@ -11,7 +11,7 @@ def send_equipment(g_tag, data_base, mode):
 
     matrix_list = data_base[1][0]
 
-    tree = g_tag[first_level_tree]
+    tree = cluster + ":" + g_tag[first_level_tree]
     if mode == 2:
         tree = tree + g_tag[first_level_tree + 1]
     store_equip(matrix_list, tree)
@@ -179,7 +179,7 @@ def send_tag_to_matrix(search_digit, g_tag, schema, data_base, mode, cluster):
     elif search_digit == 1:
         is_item_digits_found = send_item_parts(index, g_tag, data_base, mode, schema, cluster)
     elif search_digit == 2:
-        send_equipment(g_tag, data_base, mode)
+        send_equipment(g_tag, data_base, mode, cluster)
         is_item_digits_found = 1  # force continue
 
     return is_item_digits_found
