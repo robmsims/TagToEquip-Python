@@ -8,6 +8,7 @@ import sys
 import find_equip_and_tree
 import read_in_tree_structure
 import os.path
+import write_files
 
 
 def get_schema_and_create_config_file(file_path):
@@ -191,6 +192,7 @@ def get_schema_and_create_config_file(file_path):
 
         equipment_list = sorted(data_base[1][0])
         print('Equipment List is {}'.format(equipment_list))
+        write_files.write_config(config_file, map_schema, equipment_list)
 
 
 def main(file_path = ''):
