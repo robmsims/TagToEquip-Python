@@ -6,14 +6,15 @@ Usage:
 """
 import sys
 import find_equip_and_tree
+import read_in_tree_structure
+import os.path
 
 
-def main(file_name = ''):
-    if file_name == '':
-        file_name = 'D:\\Import\\Site1\\variable.csv'  # set a default file name
+def get_schema_and_create_config_file(file_path):
+    file_name = file_path + "\\variable.csv"
 
     # get header file
-    header = find_equip_and_tree.read_first_line(file_name)
+    header = read_in_tree_structure.read_first_line(file_name)
     print(header)
 
     loc_equip = header.index('equipment')
@@ -126,59 +127,88 @@ def main(file_name = ''):
         if fourth_level_tree >= 0:
             print('fourth level is at schema position {}'.format(fourth_level_tree + 1))  # convert to 1 base
 
-        # generate generic schema
-        schema = ''
-        if is_item_found:
-            schema = top_schema
+        # generate map schema
+        schema = top_schema
+        end_schema = 0
 
-            if first_level_tree >= 0:
-                schema = schema[0:first_level_tree] + "A" + schema[first_level_tree+1:]
-                end_schema = first_level_tree
-            if first_level_tree >= 0 and mode == 2:
-                schema = schema[0:first_level_tree+1] + "a" + schema[first_level_tree+2:]
-                end_schema = first_level_tree + 1
+        if first_level_tree >= 0:
+            schema = schema[0:first_level_tree] + "A" + schema[first_level_tree + 1:]
+            end_schema = first_level_tree
+        if first_level_tree >= 0 and mode == 2:
+            schema = schema[0:first_level_tree + 1] + "a" + schema[first_level_tree + 2:]
+            end_schema = first_level_tree + 1
 
-            if second_level_tree >= 0:
-                schema = schema[0:second_level_tree] + "B" + schema[second_level_tree+1:]
-                end_schema = second_level_tree
-            if second_level_tree >= 0 and mode == 2:
-                schema = schema[0:second_level_tree+1] + "b" + schema[second_level_tree+2:]
-                end_schema = second_level_tree + 1
+        if second_level_tree >= 0:
+            schema = schema[0:second_level_tree] + "B" + schema[second_level_tree + 1:]
+            end_schema = second_level_tree
+        if second_level_tree >= 0 and mode == 2:
+            schema = schema[0:second_level_tree + 1] + "b" + schema[second_level_tree + 2:]
+            end_schema = second_level_tree + 1
 
-            if third_level_tree >= 0:
-                schema = schema[0:third_level_tree] + "C" + schema[third_level_tree + 1:]
-                end_schema = third_level_tree
-            if third_level_tree >= 0 and mode == 2:
-                schema = schema[0:third_level_tree + 1] + "c" + schema[third_level_tree + 2:]
-                end_schema = third_level_tree + 1
+        if third_level_tree >= 0:
+            schema = schema[0:third_level_tree] + "C" + schema[third_level_tree + 1:]
+            end_schema = third_level_tree
+        if third_level_tree >= 0 and mode == 2:
+            schema = schema[0:third_level_tree + 1] + "c" + schema[third_level_tree + 2:]
+            end_schema = third_level_tree + 1
 
-            if fourth_level_tree >= 0:
-                schema = schema[0:fourth_level_tree] + "D" + schema[fourth_level_tree + 1:]
-                end_schema = fourth_level_tree
-            if fourth_level_tree >= 0 and mode == 2:
-                schema = schema[0:fourth_level_tree + 1] + "d" + schema[fourth_level_tree + 2:]
-                end_schema = fourth_level_tree + 1
+        if fourth_level_tree >= 0:
+            schema = schema[0:fourth_level_tree] + "D" + schema[fourth_level_tree + 1:]
+            end_schema = fourth_level_tree
+        if fourth_level_tree >= 0 and mode == 2:
+            schema = schema[0:fourth_level_tree + 1] + "d" + schema[fourth_level_tree + 2:]
+            end_schema = fourth_level_tree + 1
 
-            schema = schema[0:equip_level_tree] + "E" + schema[equip_level_tree+1:]
-            if equip_level_tree > end_schema:
-                end_schema = equip_level_tree
+        schema = schema[0:equip_level_tree] + "E" + schema[equip_level_tree + 1:]
+        if equip_level_tree > end_schema:
+            end_schema = equip_level_tree
 
-            last_digit = data_base[0][5]
-            if last_digit > end_schema:
+        last_digit = data_base[0][5]
+        char = top_schema[last_digit:last_digit + 1]
+        if last_digit > end_schema:
+            if char == "W":
                 schema = schema[0:last_digit] + "I"
             else:
+                schema = schema[0:last_digit] + "i"
+        else:
+            if char == "W":
                 schema = schema[0:last_digit] + "I" + schema[last_digit + 1:]
-                schema = schema[0:end_schema+1]
-                print('Warning item part start is before area digit')
+            else:
+                schema = schema[0:last_digit] + "i" + schema[last_digit + 1:]
 
-        print(schema)
+            schema = schema[0:end_schema + 1]
+            print('Warning item part start is before area digit')
+
+        map_schema = schema
+
+        print('----- creating mapping file at path given')
+        config_file = file_path + "\\mapping.ini"
+        print('map schema {}'.format(map_schema))
+
+        #  create an equipment tree based on found schema so we can create a file for mapping
+        data_base = read_in_tree_structure.get_equipment_tree(file_name, loc_tagname, loc_cluster,
+                                                            max_count, map_schema)
+
+        equipment_list = sorted(data_base[1][0])
+        print('Equipment List is {}'.format(equipment_list))
+
+
+def main(file_path = ''):
+    if file_path == '':
+        file_path = 'D:\\Import\\Site1'  # set a default file name
+
+    config_file = file_path + "\\mapping.ini"
+
+    config_file_exists = os.path.isfile(config_file)
+    if not config_file_exists:
+        get_schema_and_create_config_file(file_path)
 
 
 if __name__ == '__main__':
     # This is executed when called from the command line nloc_iodevot repel
     try:
-        file_name = sys.arg[1]  # The 0th arg is the module file name.
+        file_path = sys.arg[1]  # The 0th arg is the module file name.
     except:
-        file_name = ''
+        file_path = ''
 
-    main(file_name)
+    main(file_path)

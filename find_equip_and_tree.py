@@ -44,18 +44,13 @@ def find_best_match_for_tree(schema, data_base, dont_use_words, percent_filter):
     return tag_part_at_max, score_total_max
 
 
-def read_first_line(file_name):
-    with open(file_name, mode='rt', encoding='utf-8') as f:
-        return f.readline().strip().lower().rsplit(',')
-
-
 def read_in_schema(file_name, loc_tagname, max_count):
     data_block = []
     with open(file_name, mode='rt', encoding='utf-8') as f:
         read_count = 0
         for read_line in f:
             if read_count > 0:
-                tag = read_csv_file.read_in_data(loc_tagname, read_line.strip())
+                tag = read_csv_file.read_in_data(loc_tagname, read_line.strip()).strip('"')
                 # g_tag not used here but required by function get_schema
                 current_schema, g_tag = read_csv_file.get_schema(tag)
                 data_block.append(current_schema)
@@ -83,12 +78,12 @@ def read_in_schema(file_name, loc_tagname, max_count):
 
 
 def find_equip_type_position_and_import_data(file_name, loc_tagname, loc_cluster, max_count, schema, mode, percent_filter):
-    count = 0
+    word_count = 0
     for char in schema:
         if char == "W":
-            count += 1
+            word_count += 1
 
-    matrix0 = [-1,-1,-1,-1,-1,-1,-1]  # initalize area hirerchey
+    matrix0 = [-1,-1,-1,-1,-1,-1]  # initalize area hirerchey
     matrix = []
     equip_type_count_matrix = []
     equip_matrix = []
@@ -101,7 +96,7 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, loc_cluster
     equip_postion_max = -1
 
     equip_level_tree = -1
-    for current_equip_postion in range(1, count+1):
+    for current_equip_postion in range(1, word_count+1):
         count = 0
         equip_level_tree = 0
         for char in schema:

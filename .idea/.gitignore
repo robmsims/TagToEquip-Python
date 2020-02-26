@@ -1,0 +1,8 @@
+# Default ignored files
+/workspace.xml
+/misc.xml
+/modules.xml
+/vcs.xml
+/TagToEquip-Python.iml
+/inspectionProfiles
+/__pycache__

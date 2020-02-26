@@ -1,3 +1,40 @@
+def store_equip(matrix_list, tree):
+    if tree not in matrix_list:
+        matrix_list.append(tree)
+
+
+def send_equipment(g_tag, data_base, mode):
+    first_level_tree = data_base[0][1]
+    second_level_tree = data_base[0][2]
+    third_level_tree = data_base[0][3]
+    fourth_level_tree = data_base[0][4]
+
+    matrix_list = data_base[1][0]
+
+    tree = g_tag[first_level_tree]
+    if mode == 2:
+        tree = tree + g_tag[first_level_tree + 1]
+    store_equip(matrix_list, tree)
+
+    if second_level_tree >= 0:
+        tree = tree + '.' + g_tag[second_level_tree]
+        if mode == 2:
+            tree = tree + g_tag[second_level_tree + 1]
+        store_equip(matrix_list, tree)
+
+    if third_level_tree >= 0:
+        tree = tree + '.' + g_tag[third_level_tree]
+        if mode == 2:
+            tree = tree + g_tag[third_level_tree + 1]
+        store_equip(matrix_list, tree)
+
+    if fourth_level_tree >= 0:
+        tree = tree + '.' + g_tag[fourth_level_tree]
+        if mode == 2:
+            tree = tree + g_tag[fourth_level_tree + 1]
+        store_equip(matrix_list, tree)
+
+
 def send_item_parts(index, g_tag, data_base, mode, schema, cluster):
     equip_level_tree = data_base[0][0]
     first_level_tree = data_base[0][1]
@@ -5,7 +42,6 @@ def send_item_parts(index, g_tag, data_base, mode, schema, cluster):
     third_level_tree = data_base[0][3]
     fourth_level_tree = data_base[0][4]
     last_digit = data_base[0][5]
-    first_digit = data_base[0][6]
 
     char = schema[last_digit:last_digit + 1]
     if not char.isalpha():
@@ -14,7 +50,7 @@ def send_item_parts(index, g_tag, data_base, mode, schema, cluster):
         return is_item_digits_found
 
     matrix = data_base[1]  # get list of dictionary elements list
-    dict_matrix = matrix[index]  # get list containing tags for this equipment
+    list_matrix = matrix[index]  # get list containing tags for this equipment
 
     is_item_digits_found = 1
     tag = cluster+"."
@@ -44,8 +80,8 @@ def send_item_parts(index, g_tag, data_base, mode, schema, cluster):
         if add_digit == 1:
             tag = tag + g_tag[tag_part]
 
-    if tag not in dict_matrix:
-        dict_matrix[tag] = 1  # create first dictionary entry at tag
+    if tag not in list_matrix:
+        list_matrix.append(tag)  # create first dictionary entry at tag
         #print('stroring tag {}'.format(tag))
     else:
         is_item_digits_found = 0  # duplicate found aborting this search
@@ -125,8 +161,12 @@ def send_tag_to_matrix(search_digit, g_tag, schema, data_base, mode, cluster):
 
     index = equip_matrix.index(eq_part)
 
+
     if index not in matrix:
-        matrix[index] = dict()  # append an empty dict for equip index position
+        if search_digit == 0:
+            matrix[index] = dict()  # append an empty dict for equip index position
+        else:
+            matrix[index] = list()  # append an empty list for equip index position
 
     if search_digit == 0:  # tree search mode
         for tag_part in range(0, len(schema)):
@@ -136,8 +176,11 @@ def send_tag_to_matrix(search_digit, g_tag, schema, data_base, mode, cluster):
                         if not first_level_tree == tag_part:
                             if not equip_level_tree == tag_part:
                                 send_tree_part(tag_part, index, g_tag, data_base, mode, schema)
-    else:
+    elif search_digit == 1:
         is_item_digits_found = send_item_parts(index, g_tag, data_base, mode, schema, cluster)
+    elif search_digit == 2:
+        send_equipment(g_tag, data_base, mode)
+        is_item_digits_found = 1  # force continue
 
     return is_item_digits_found
 
@@ -153,16 +196,13 @@ def get_schema(tag):
     g_tag = []
 
     for char in tag:
-        if char == "\"":
-            continue
-
         if char.isalpha():
             if not type == "W":
                 type = "W"
                 schema = schema + type
                 g_tag.append(char)
             else:
-                g_tag[len(g_tag ) -1] = g_tag[len(g_tag ) -1] + char
+                g_tag[len(g_tag ) - 1] = g_tag[len(g_tag ) - 1] + char
 
         if char.isnumeric():
             type = "N"
@@ -197,14 +237,15 @@ def move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluste
 
     data_base = [matrix0, matrix, equip_type_count_matrix, equip_matrix]
 
+    is_item_digits_found = 0
     read_in_record_count = 0
     count = 0
     with open(file_name, mode='rt', encoding='utf-8') as f:
         for read_line in f:
             read_in_record_count += 1
-            if read_in_record_count > 0:
-                tag = read_in_data(loc_tagname, read_line.strip())
-                cluster = read_in_data(loc_cluster, read_line.strip())
+            if read_in_record_count > 1:
+                tag = read_in_data(loc_tagname, read_line.strip()).strip('"')
+                cluster = read_in_data(loc_cluster, read_line.strip()).strip('"')
                 current_schema, g_tag = get_schema(tag)
 
                 if search_digit == 1:
@@ -221,9 +262,8 @@ def move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluste
                     if count == max_count:
                         break
 
-    #if search_digit == 1:
-    #    print(schema)
-    #    print('tags read in {} out of {}. ie {} % coverage'
-    #          .format(count, read_in_record_count, 100*count/read_in_record_count))
+    if search_digit == 2:
+        print('For schema {} tags read in {} out of {}. ie {} % coverage'
+              .format(schema, count, read_in_record_count, 100*count/read_in_record_count))
 
     return data_base, is_item_digits_found
