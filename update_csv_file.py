@@ -13,12 +13,29 @@ def update_csv(map_schema, area_map, equipment_map_dict, loc_equip, loc_item, lo
                loc_cluster, loc_iodev, file_name, equip_list):
     scratch_file = file_name.replace('.csv', '-working.csv')
     with open(scratch_file, mode='wt', encoding='utf-8') as sf:
+        existing_cluster_equip_item_list = list()
         with open(file_name, mode='rt', encoding='utf-8') as rf:
             read_in_record_count = 0
             for read_line in rf:
                 tag = read_csv_file.read_in_data(loc_tagname, read_line.strip()).strip('"')
                 cluster = read_csv_file.read_in_data(loc_cluster, read_line.strip()).strip('"')
                 item = read_csv_file.read_in_data(loc_item, read_line.strip()).strip('"')
+                equipment = read_csv_file.read_in_data(loc_equip, read_line.strip()).strip('"')
+
+                read_in_record_count += 1
+                if read_in_record_count > 1 and not equipment == '':
+                    if item == '':
+                        item = tag  # citect will use tag if no item is defined so record tag for item
+
+                    equip_key = cluster + ':' + equipment + ":" + item
+                    if equip_key not in existing_cluster_equip_item_list:
+                        existing_cluster_equip_item_list.append(equip_key)
+
+        with open(file_name, mode='rt', encoding='utf-8') as rf:
+            read_in_record_count = 0
+            for read_line in rf:
+                tag = read_csv_file.read_in_data(loc_tagname, read_line.strip()).strip('"')
+                cluster = read_csv_file.read_in_data(loc_cluster, read_line.strip()).strip('"')
                 equipment = read_csv_file.read_in_data(loc_equip, read_line.strip()).strip('"')
                 iodev = read_csv_file.read_in_data(loc_iodev, read_line.strip()).strip('"')
 
@@ -51,12 +68,7 @@ def update_csv(map_schema, area_map, equipment_map_dict, loc_equip, loc_item, lo
                             elif char == '.':
                                 equip += '.'
 
-                        # look up equip dictonary mapping
-                        equip_key = cluster + ':' + equip
-                        if equip_key in equipment_map_dict:
-                            equip = equipment_map_dict[equip_key]
-
-                        # construct item
+                        # construct equip_type + item
                         item = ''
                         if equip_level_tree >= 0:
                             item += g_tag[equip_level_tree]
@@ -65,22 +77,23 @@ def update_csv(map_schema, area_map, equipment_map_dict, loc_equip, loc_item, lo
                             if index >= last_digit:
                                 item += g_tag[index]
 
+                        # record all new equipment + iodevice if missing
+                        equip_key = cluster + ':' + equip
+                        if equip_key not in equip_list:
+                            equip_list[equip_key] = iodev
+                        elif len(iodev) > 0:  # i/o device only in variables.csv
+                            equip_list[equip_key] = iodev
+
+                        # check if equip.item is already used
+                        equip_key = cluster + ':' + equipment + ":" + item
+                        if equip_key in existing_cluster_equip_item_list:
+                            item = tag  # fallback to tag to prevent duplicate equip.item reference
+
                         # insert equip and item into mod_line
                         record_list = mod_line.rsplit(',')
                         record_list[loc_item] = '\"' + item + '\"'
                         record_list[loc_equip] = '\"' + equip + '\"'
                         mod_line = ','.join(record_list)
-
-                # record all equipment
-                cluster = read_csv_file.read_in_data(loc_cluster, mod_line.strip()).strip('"')
-                equipment = read_csv_file.read_in_data(loc_equip, mod_line.strip()).strip('"')
-
-                equip_key = cluster + ':' + equipment
-                if not equipment == '' and read_in_record_count > 1:
-                    if equip_key not in equip_list:
-                        equip_list[equip_key] = iodev
-                    elif len(iodev) > 0:
-                        equip_list[equip_key] = iodev
 
                 sf.write(mod_line)
 
