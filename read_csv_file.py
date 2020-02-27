@@ -1,3 +1,6 @@
+import encode_decode_map_schema
+
+
 def store_equip(matrix_list, tree):
     if tree not in matrix_list:
         matrix_list.append(tree)
@@ -97,10 +100,10 @@ def send_tree_part(tag_part, index, g_tag, data_base, mode, schema):
 
     if tag_part + mode > len(schema):
         return
-    elif not schema[tag_part+1: tag_part + 2]=='N' and mode == 2:
-        return
 
-    if not schema[tag_part: tag_part + 1].isalpha():
+    if mode == 2 and not schema[tag_part: tag_part + 2] == 'NN':
+        return
+    elif not schema[tag_part: tag_part + 1].isalpha():
         return
 
     matrix = data_base[1]  # get list of dictionary elements list
@@ -250,9 +253,9 @@ def move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluste
                 cluster = read_in_data(loc_cluster, read_line.strip()).strip('"')
                 current_schema, g_tag = get_schema(tag)
 
-                schema_w = schema.replace('*', 'N')
-                schema_n = schema.replace('*', 'W')
-                if current_schema.find(schema_n) == 0  or current_schema.find(schema_w) == 0:
+                schema = encode_decode_map_schema.generalise_schema(data_base, mode, schema)
+                generalised_schema = encode_decode_map_schema.generalise_schema(data_base, mode, current_schema)
+                if generalised_schema.find(schema) == 0 or generalised_schema.find(schema) == 0:
                     is_item_digits_found = send_tag_to_matrix(search_digit, g_tag, current_schema,
                                                               data_base, mode, cluster)
                     if not is_item_digits_found:

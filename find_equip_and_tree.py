@@ -200,21 +200,23 @@ def find_item(file_name, loc_tagname, loc_cluster, max_count, schema, data_base,
             data_base[0][3] = -1
             data_base[0][2] = -1
 
-        if l_digit == first_level_tree + extra_char or l_digit == equip_level_tree:
+        if l_digit == first_level_tree + extra_char:
             data_base[0][4] = -1
             data_base[0][3] = -1
             data_base[0][2] = -1
             data_base[0][1] = -1
+
+        if l_digit == equip_level_tree:
             data_base[0][0] = -1
 
         data_base[0][5] = l_digit
-        schema = schema[0:l_digit]
+        schema = schema[0:l_digit + 1]
         data_base, is_item_digits_found = read_csv_file.move_scenario_data_to_array(search_digit, file_name,
                                                 loc_tagname, loc_cluster, max_count, schema, data_base, mode)
         if is_item_digits_found:
             break
 
-    if not data_base[0][1] == -1 and not data_base[0][0] == -1:
+    if not data_base[0][1] == -1:
         data_base[0][2] = second_level_tree
         data_base[0][3] = third_level_tree
         data_base[0][4] = fourth_level_tree

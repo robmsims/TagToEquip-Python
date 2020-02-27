@@ -26,19 +26,16 @@ def decode_mapping_schema(map_schema):
             third_level_tree = index
         elif char == 'D':
             fourth_level_tree = index
-        elif char == 'a' or char == 'b' or char == 'c' or char == 'd':
-            mode = 2
 
         if char == 'a' or char == 'b' or char == 'c' or char == 'd':
-            schema = schema[0:index] + "N" + schema[index + 1:]
+            mode = 2
+            schema = schema[0:index - 1] + "NN" + schema[index + 1:]
         elif char == 'A' or char == 'B' or char == 'C' or char == 'D':
+            schema = schema[0:index] + "*" + schema[index + 1:]
+        elif char == 'I':
             schema = schema[0:index] + "*" + schema[index + 1:]
         elif char == 'E':
             schema = schema[0:index] + "W" + schema[index + 1:]
-        elif char == 'I':
-            schema = schema[0:index] + "W" + schema[index + 1:]
-        elif char == 'i':
-            schema = schema[0:index] + "N" + schema[index + 1:]
 
     matrix0[0] = equip_level_tree
     matrix0[1] = first_level_tree
@@ -99,16 +96,23 @@ def encode_mapping_schema(data_base, mode, top_schema):
         char = top_schema[last_digit:last_digit + 1]
         if last_digit > end_schema:
             end_schema = last_digit
-            if char == "W":
-                map_schema = map_schema[0:last_digit] + "I"
-            else:
-                map_schema = map_schema[0:last_digit] + "i"
+            map_schema = map_schema[0:last_digit] + "I"
         else:
             print('Warning item part start is before area digit')
-            if char == "W":
-                map_schema = map_schema[0:last_digit] + "I" + map_schema[last_digit + 1:]
-            else:
-                map_schema = map_schema[0:last_digit] + "i" + map_schema[last_digit + 1:]
+            map_schema = map_schema[0:last_digit] + "I" + map_schema[last_digit + 1:]
+
         map_schema = map_schema[0:end_schema + 1]
 
+    # replace 'W' or 'N' with '*'
+    for index in range(len(map_schema)):
+        char = map_schema[index:index + 1]
+        if char == 'N' or char == 'W':
+            map_schema = map_schema[0:index] + '*' + map_schema[index + 1:]
+
     return map_schema
+
+
+def generalise_schema(data_base, mode, schema):
+    map_schema = encode_mapping_schema(data_base, mode, schema)
+    matrix0, mode, generalised_schema = decode_mapping_schema(map_schema)
+    return generalised_schema

@@ -114,12 +114,10 @@ def get_schema_and_create_config_file(file_path, config_file):
     data_base[0][4] = fourth_level_tree
 
     # - create a map schema
-    map_schema = encode_decode_map_schema.encode_mapping_schema(data_base, mode, top_schema)
-    _, _, schema = encode_decode_map_schema.decode_mapping_schema(map_schema)
-    print('schema for use finding item part {}'.format(schema))
+    #print('schema for use finding item part {}'.format(top_schema))
 
     data_base, is_item_found = find_equip_and_tree.find_item(file_name, loc_tagname, loc_cluster,
-                                                            max_count, schema, data_base, mode)
+                                                            max_count, top_schema, data_base, mode)
     equip_level_tree = data_base[0][0]
     first_level_tree = data_base[0][1]
     second_level_tree = data_base[0][2]
