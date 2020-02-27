@@ -18,6 +18,8 @@ def update_csv_files(file_path, config_file):
 
     read_in_tree_structure.update_equipment_csv(file_path, equip_list)
 
+    read_in_tree_structure.replace_original_csv(file_path)
+
 
 def get_schema_and_create_config_file(file_path, config_file):
     file_name = file_path + "\\variable.csv"

@@ -1,6 +1,8 @@
 import read_csv_file
 import encode_decode_map_schema
 import update_csv_file
+import os
+import shutil
 
 
 def get_equipment_tree(file_name, loc_tagname, loc_cluster, max_count, map_schema):
@@ -94,3 +96,14 @@ def update_equipment_csv(file_path, equip_list):
         if file_name.find('equip.csv') >= 0:
             loc_equip, _, _, loc_cluster, loc_iodev = get_loc_of_header_columns(file_name)
             update_csv_file.update_equipment_csv(loc_equip, loc_cluster, loc_iodev, file_name, equip_list)
+
+
+def replace_original_csv(file_path):
+    file_list = get_file_paths(file_path)
+    for file_name in file_list:
+        scratch_file = file_name.replace('.csv', '-working.csv')
+        backup_file = file_name.replace('.csv', '.bak')
+
+        # copy .csv to .bak
+        shutil.move(file_name, backup_file)
+        shutil.move(scratch_file, file_name)

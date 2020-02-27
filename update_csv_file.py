@@ -104,6 +104,8 @@ def update_equipment_csv(loc_equip, loc_cluster, loc_iodev, file_name, equip_lis
                         # remove equipment entry
                         del equip_list[equip_key]
 
+        print('final equip list length = {}'.format(len(equip_list)))
+
         # clear line so it can be used as a template
         record_list = read_line.rsplit(',')
         for item in range(len(record_list) - 1):
@@ -124,5 +126,3 @@ def update_equipment_csv(loc_equip, loc_cluster, loc_iodev, file_name, equip_lis
             mod_line = ','.join(new_list)
 
             sf.write(mod_line)  # copy existing lines
-
-    print('final equip list length = {}'.format(len(equip_list)))
