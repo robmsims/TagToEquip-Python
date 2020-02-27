@@ -253,9 +253,9 @@ def move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluste
                 cluster = read_in_data(loc_cluster, read_line.strip()).strip('"')
                 current_schema, g_tag = get_schema(tag)
 
-                schema = encode_decode_map_schema.generalise_schema(data_base, mode, schema)
-                generalised_schema = encode_decode_map_schema.generalise_schema(data_base, mode, current_schema)
-                if generalised_schema.find(schema) == 0 or generalised_schema.find(schema) == 0:
+                generalised_schema = encode_decode_map_schema.generalise_schema(matrix0, mode, schema)
+                generalised_current_schema = encode_decode_map_schema.generalise_schema(matrix0, mode, current_schema)
+                if generalised_current_schema.find(generalised_schema) == 0:
                     is_item_digits_found = send_tag_to_matrix(search_digit, g_tag, current_schema,
                                                               data_base, mode, cluster)
                     if not is_item_digits_found:

@@ -1,5 +1,6 @@
 import read_csv_file
 import encode_decode_map_schema
+import update_csv_file
 
 
 def get_equipment_tree(file_name, loc_tagname, loc_cluster, max_count, map_schema):
@@ -42,17 +43,56 @@ def get_file_paths(file_path):
             hresalm_file_name, tsana_file_name, tsdig_file_name]
 
 
-def update_equipment_csv(map_schema, area_map, equipment_map_list, file_path):
+def get_loc_of_header_columns(file_name):
+    # get header file
+    header = read_first_line(file_name)
+    #print(file_name)
+    #print(header)
+
+    loc_item = -1
+    loc_tagname = -1
+    if file_name.find('equip.csv') >= 0:
+        loc_equip = header.index('name')
+    else:
+        loc_equip = header.index('equipment')
+        loc_item = header.index('item name')
+        if file_name.find('variable.csv') >= 0 or file_name.find('trend.csv') >= 0:
+            loc_tagname = header.index('tag name')
+        elif file_name.find('spc.csv') >= 0:
+            loc_tagname = header.index('spc tag name')
+        elif file_name.find('accums.csv') >= 0:
+            loc_tagname = header.index('name')
+        else:
+            loc_tagname = header.index('alarm tag')
+
+    loc_cluster = header.index('cluster name')
+
+    #print('Equipment loation {}'.format(loc_equip))
+    #print('Equipment Item location {}'.format(loc_item))
+    #print('Equipment Cluster {}'.format(loc_cluster))
+
+    return loc_equip, loc_item, loc_tagname, loc_cluster
+
+
+def update_tag_csvs(map_schema, area_map, equipment_map_list, file_path):
+    file_list = get_file_paths(file_path)
+    equip_list = []
+
+    for file_name in file_list:
+        if not file_name.find('equip.csv') >= 0:  # skip equipment file
+            loc_equip, loc_item, loc_tagname, loc_cluster = get_loc_of_header_columns(file_name)
+            equip_list = update_csv_file.update_csv(map_schema, area_map, equipment_map_list,
+                                       loc_equip, loc_item, loc_tagname, loc_cluster, file_name, equip_list)
+
+    return equip_list
+
+
+def update_equipment_csv(file_path, equip_list):
     file_list = get_file_paths(file_path)
 
     for file_name in file_list:
-        # get header file
-        header = read_first_line(file_name)
-        print(header)
+        if file_name.find('equip.csv') >= 0:
+            loc_equip, _, _, loc_cluster = get_loc_of_header_columns(file_name)
+            update_csv_file.update_equipment_csv(loc_equip, loc_cluster, file_name, equip_list)
 
-        loc_equip = header.index('equipment')
-        loc_item = header.index('item name')
-        loc_cluster = header.index('cluster name')
-        print('Equipment loation {}'.format(loc_equip))
-        print('Equipment Item location {}'.format(loc_item))
-        print('Equipment Cluster {}'.format(loc_cluster))
+

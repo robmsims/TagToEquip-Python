@@ -13,8 +13,10 @@ import encode_decode_map_schema
 
 
 def update_csv_files(file_path, config_file):
-    map_schema, area_map, equipment_map_list = write_read_config_file.read_config_file(config_file)
-    read_in_tree_structure.update_equipment_csv(map_schema, area_map, equipment_map_list, file_path)
+    map_schema, area_map, equipment_map_dict = write_read_config_file.read_config_file(config_file)
+    equip_list = read_in_tree_structure.update_tag_csvs(map_schema, area_map, equipment_map_dict, file_path)
+
+    read_in_tree_structure.update_equipment_csv(file_path, equip_list)
 
 
 def get_schema_and_create_config_file(file_path, config_file):
@@ -138,7 +140,8 @@ def get_schema_and_create_config_file(file_path, config_file):
             print('fourth level is at schema position {}'.format(fourth_level_tree + 1))  # convert to 1 base
 
         # generate map schema
-        map_schema = encode_decode_map_schema.encode_mapping_schema(data_base, mode, top_schema)
+        matrix0 = data_base[0]
+        map_schema = encode_decode_map_schema.encode_mapping_schema(matrix0, mode, top_schema)
 
         # generate config file
         print('----- creating mapping file at path given -----')

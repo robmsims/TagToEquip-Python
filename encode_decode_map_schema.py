@@ -47,13 +47,13 @@ def decode_mapping_schema(map_schema):
     return matrix0, mode, schema
 
 
-def encode_mapping_schema(data_base, mode, top_schema):
-    equip_level_tree = data_base[0][0]
-    first_level_tree = data_base[0][1]
-    second_level_tree = data_base[0][2]
-    third_level_tree = data_base[0][3]
-    fourth_level_tree = data_base[0][4]
-    last_digit = data_base[0][5]
+def encode_mapping_schema(matrix0, mode, top_schema):
+    equip_level_tree = matrix0[0]
+    first_level_tree = matrix0[1]
+    second_level_tree = matrix0[2]
+    third_level_tree = matrix0[3]
+    fourth_level_tree = matrix0[4]
+    last_digit = matrix0[5]
 
     map_schema = top_schema
 
