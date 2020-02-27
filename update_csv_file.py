@@ -10,7 +10,7 @@ def add_string(g_tag, level_tree, mode):
 
 
 def update_csv(map_schema, area_map, equipment_map_dict, loc_equip, loc_item, loc_tagname,
-               loc_cluster, file_name, equip_list):
+               loc_cluster, loc_iodev, file_name, equip_list):
     scratch_file = file_name.replace('.csv', '-working.csv')
     with open(scratch_file, mode='wt', encoding='utf-8') as sf:
         with open(file_name, mode='rt', encoding='utf-8') as rf:
@@ -20,6 +20,7 @@ def update_csv(map_schema, area_map, equipment_map_dict, loc_equip, loc_item, lo
                 cluster = read_csv_file.read_in_data(loc_cluster, read_line.strip()).strip('"')
                 item = read_csv_file.read_in_data(loc_item, read_line.strip()).strip('"')
                 equipment = read_csv_file.read_in_data(loc_equip, read_line.strip()).strip('"')
+                iodev = read_csv_file.read_in_data(loc_iodev, read_line.strip()).strip('"')
 
                 mod_line = read_line
                 read_in_record_count += 1
@@ -77,14 +78,16 @@ def update_csv(map_schema, area_map, equipment_map_dict, loc_equip, loc_item, lo
                 equip_key = cluster + ':' + equipment
                 if not equipment == '' and read_in_record_count > 1:
                     if equip_key not in equip_list:
-                        equip_list.append(equip_key)
+                        equip_list[equip_key] = iodev
+                    elif len(iodev) > 0:
+                        equip_list[equip_key] = iodev
 
                 sf.write(mod_line)
 
     return equip_list
 
 
-def update_equipment_csv(loc_equip, loc_cluster, file_name, equip_list):
+def update_equipment_csv(loc_equip, loc_cluster, loc_iodev, file_name, equip_list):
     print('inital equip list length = {}'.format(len(equip_list)))
     scratch_file = file_name.replace('.csv', '-working.csv')
     with open(scratch_file, mode='wt', encoding='utf-8') as sf:
@@ -99,7 +102,7 @@ def update_equipment_csv(loc_equip, loc_cluster, file_name, equip_list):
                     equip_key = cluster + ':' + equipment
                     if equip_key in equip_list:
                         # remove equipment entry
-                        equip_list.remove(equip_key)
+                        del equip_list[equip_key]
 
         # clear line so it can be used as a template
         record_list = read_line.rsplit(',')
@@ -113,11 +116,13 @@ def update_equipment_csv(loc_equip, loc_cluster, file_name, equip_list):
             equip = equipment[equipment.find(':') + 1:]
             new_list[loc_cluster] = '\"' + cluster + '\"'
             new_list[loc_equip] = '\"' + equip + '\"'
+
+            iodev = equip_list[equipment]
+            if len(iodev) > 0:
+                new_list[loc_iodev] = '\"' + iodev + '\"'
+
             mod_line = ','.join(new_list)
 
             sf.write(mod_line)  # copy existing lines
 
     print('final equip list length = {}'.format(len(equip_list)))
-
-    #scratch_file = file_name.replace('.csv', '-working.csv')
-    #with open(scratch_file, mode='wt', encoding='utf-8') as sf:
