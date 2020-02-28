@@ -2,7 +2,7 @@
 """Retrive and print schema from a fime
 
 Usage:
-    python3 Main-import-variables.py filename eg D:\Import\Site1\variable.csv
+    python3 Main-import-variables.py filename    eg D:\Import\Site1\variable.csv
 """
 import sys
 import find_equip_and_tree
@@ -14,7 +14,7 @@ import encode_decode_map_schema
 
 def update_csv_files(file_path, config_file):
     map_schema, area_map, equipment_map_dict = write_read_config_file.read_config_file(config_file)
-    equip_list = read_in_tree_structure.update_tag_csvs(map_schema, area_map, equipment_map_dict, file_path)
+    equip_list = read_in_tree_structure.update_tag_csvs(map_schema, area_map, file_path)
 
     read_in_tree_structure.update_equipment_csv(file_path, equip_list)
 
@@ -26,18 +26,9 @@ def get_schema_and_create_config_file(file_path, config_file):
 
     # get header file
     header = read_in_tree_structure.read_first_line(file_name)
-    #print(header)
 
-    loc_equip = header.index('equipment')
-    loc_item = header.index('item name')
     loc_tagname = header.index('tag name')
-    loc_iodev = header.index('i/o device')
     loc_cluster = header.index('cluster name')
-    #print('Equipment loation {}'.format(loc_equip))
-    #print('Equipment Item location {}'.format(loc_item))
-    #print('Tag Name {}'.format(loc_tagname))
-    #print('Equipment I/O Device {}'.format(loc_iodev))
-    #print('Equipment Cluster {}'.format(loc_cluster))
 
     # get most common schema
     max_count = 2000000  # limit read in while testing
@@ -56,7 +47,7 @@ def get_schema_and_create_config_file(file_path, config_file):
 
     # is 2 character mode needed
     first_level_tree = data_base[0][1]
-    if first_level_tree < 0: # try 2ch mode
+    if first_level_tree < 0:  # try 2ch mode
         mode = 2  # chr area designation
         percent_filter = 98
         data_base = find_equip_and_tree.find_equip_type_position_and_import_data(
@@ -64,11 +55,9 @@ def get_schema_and_create_config_file(file_path, config_file):
 
     # get area hierachey
     if first_level_tree >= 0:
-        filter = 90
-        data_base = find_equip_and_tree.find_tree(file_name, top_schema, data_base,
-                                    loc_tagname, loc_cluster, max_count, mode, filter, percent_filter)
-
-    #return  #  debug
+        score_filter = 90
+        data_base = find_equip_and_tree.find_tree(file_name, top_schema, data_base, loc_tagname, loc_cluster,
+                                                  max_count, mode, score_filter, percent_filter)
 
     # sanitise area list order
     first_level_tree = data_base[0][1]
@@ -80,9 +69,9 @@ def get_schema_and_create_config_file(file_path, config_file):
                     file_name, loc_tagname, loc_cluster, max_count, top_schema, mode, percent_filter)
             data_base[0][1] = second_level_tree
             # get area hierachey again
-            filter = 90
-            data_base = find_equip_and_tree.find_tree(file_name, top_schema, data_base,
-                                    loc_tagname, loc_cluster, max_count, mode, filter, percent_filter)
+            score_filter = 90
+            data_base = find_equip_and_tree.find_tree(file_name, top_schema, data_base, loc_tagname, loc_cluster,
+                                                      max_count, mode, score_filter, percent_filter)
 
     first_level_tree = data_base[0][1]
     second_level_tree = data_base[0][2]
@@ -102,12 +91,12 @@ def get_schema_and_create_config_file(file_path, config_file):
         fourth_level_tree = -1
 
     # sanitise area list spaceing
-    area_spaceing = second_level_tree - first_level_tree
-    if area_spaceing < third_level_tree - second_level_tree:
+    area_spacing = second_level_tree - first_level_tree
+    if area_spacing < third_level_tree - second_level_tree:
         third_level_tree = -1
         fourth_level_tree = -1
 
-    if area_spaceing < fourth_level_tree - third_level_tree:
+    if area_spacing < fourth_level_tree - third_level_tree:
         fourth_level_tree = -1
 
     # find the item name
@@ -118,11 +107,8 @@ def get_schema_and_create_config_file(file_path, config_file):
     data_base[0][4] = fourth_level_tree
 
     # - create a map schema
-    #print('schema for use finding item part {}'.format(top_schema))
-
     data_base, is_item_found = find_equip_and_tree.find_item(file_name, loc_tagname, loc_cluster,
-                                                            max_count, top_schema, data_base, mode)
-    equip_level_tree = data_base[0][0]
+                                                             max_count, top_schema, data_base, mode)
     first_level_tree = data_base[0][1]
     second_level_tree = data_base[0][2]
     third_level_tree = data_base[0][3]
@@ -151,17 +137,17 @@ def get_schema_and_create_config_file(file_path, config_file):
 
         # - create an equipment tree based on found schema so we can create a file for mapping
         data_base = read_in_tree_structure.get_equipment_tree(file_name, loc_tagname, loc_cluster,
-                                                            max_count, map_schema)
+                                                              max_count, map_schema)
 
         equipment_list = sorted(data_base[1][0])
-        # print('Equipment List is {}'.format(equipment_list))
         write_read_config_file.write_config(config_file, map_schema, equipment_list)
         print('Default config file writen')
 
 
-def main(file_path = ''):
+def main(file_path=''):
     if file_path == '':
         file_path = 'D:\\Import\\example'  # set a default file name
+        print('argument not entered. using default {}'.format(file_path))
 
     config_file = file_path + "\\mapping.ini"
 
@@ -175,8 +161,8 @@ def main(file_path = ''):
 if __name__ == '__main__':
     # This is executed when called from the command line nloc_iodevot repel
     try:
-        file_path = sys.arg[1]  # The 0th arg is the module file name.
-    except:
-        file_path = ''
+        project_file_path = sys.argv[1]  # The 0th arg is the module file name.
+    except IndexError as error:
+        project_file_path = ''
 
-    main(file_path)
+    main(project_file_path)

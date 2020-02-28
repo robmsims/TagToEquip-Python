@@ -19,7 +19,7 @@ def read_config_file(config_file):
                     equip_list = read_line.strip().rsplit('(')
                     cluster = equip_list[1][0:equip_list[1].find(')')]
                     area_numbers = equip_list[2][0:equip_list[2].find(')')]
-                    area_name = equip_list[2][equip_list[2].find('=')+1:].strip()
+                    area_name = equip_list[2][equip_list[2].find('=') + 1:].strip()
                     equipment_map_dict[cluster + ':' + area_numbers] = area_name
 
     return map_schema, area_map, equipment_map_dict
@@ -27,12 +27,9 @@ def read_config_file(config_file):
 
 def write_config(config_file, map_schema, equipment_list):
     matrix0, mode, schema = encode_decode_map_schema.decode_mapping_schema(map_schema)
-    equip_level_tree = matrix0[0]
-    first_level_tree = matrix0[1]
     second_level_tree = matrix0[2]
     third_level_tree = matrix0[3]
     fourth_level_tree = matrix0[4]
-    last_digit = matrix0[5]
     with open(config_file, mode='wt', encoding='utf-8') as f:
         f.write('[Schema]\n')
         f.write('Schema = {}\n'.format(map_schema))
@@ -41,19 +38,19 @@ def write_config(config_file, map_schema, equipment_list):
         if mode == 2:
             mapping = "Aa"
             if not second_level_tree == -1:
-                mapping = mapping + ".Bb"
+                mapping += ".Bb"
             if not third_level_tree == -1:
-                mapping = mapping + ".Cc"
+                mapping += ".Cc"
             if not fourth_level_tree == -1:
-                mapping = mapping + ".Dd"
+                mapping += ".Dd"
         else:
             mapping = "A"
             if not second_level_tree == -1:
-                mapping = mapping + ".B"
+                mapping += ".B"
             if not third_level_tree == -1:
-                mapping = mapping + ".C"
+                mapping += ".C"
             if not fourth_level_tree == -1:
-                mapping = mapping + ".D"
+                mapping += ".D"
 
         f.write('format = {}\n'.format(mapping))
 

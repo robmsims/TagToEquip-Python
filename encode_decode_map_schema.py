@@ -1,5 +1,3 @@
-
-
 def decode_mapping_schema(map_schema):
     matrix0 = [-1,-1,-1,-1,-1,-1]
     equip_level_tree = matrix0[0]
@@ -93,7 +91,6 @@ def encode_mapping_schema(matrix0, mode, top_schema):
 
     # do next bit only if Item has been found
     if not last_digit == -1:
-        char = top_schema[last_digit:last_digit + 1]
         if last_digit > end_schema:
             end_schema = last_digit
             map_schema = map_schema[0:last_digit] + "I"

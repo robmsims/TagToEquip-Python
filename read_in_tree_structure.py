@@ -1,14 +1,13 @@
 import read_csv_file
 import encode_decode_map_schema
 import update_csv_file
-import os
 import shutil
 
 
 def get_equipment_tree(file_name, loc_tagname, loc_cluster, max_count, map_schema):
     matrix0, mode, schema = encode_decode_map_schema.decode_mapping_schema(map_schema)
-    data_base = []
-    data_base.append(matrix0)
+    data_base = list()
+    data_base.append(matrix0)  # matrix0 - tree hierachy
     data_base.append(dict())  # matrix - use for equipment tree
     data_base.append(list())  # equip_type_count_matrix - dummy place marker
     data_base.append(list())  # equip_matrix - dummy place marker
@@ -48,8 +47,6 @@ def get_file_paths(file_path):
 def get_loc_of_header_columns(file_name):
     # get header file
     header = read_first_line(file_name)
-    # print(file_name)
-    # print(header)
 
     loc_item = -1
     loc_tagname = -1
@@ -76,15 +73,15 @@ def get_loc_of_header_columns(file_name):
     return loc_equip, loc_item, loc_tagname, loc_cluster, loc_iodev
 
 
-def update_tag_csvs(map_schema, area_map, equipment_map_list, file_path):
+def update_tag_csvs(map_schema, area_map, file_path):
     file_list = get_file_paths(file_path)
     equip_list = dict()
 
     for file_name in file_list:
         if not file_name.find('equip.csv') >= 0:  # skip equipment file
             loc_equip, loc_item, loc_tagname, loc_cluster, loc_iodev = get_loc_of_header_columns(file_name)
-            equip_list = update_csv_file.update_csv(map_schema, area_map, equipment_map_list,
-                                       loc_equip, loc_item, loc_tagname, loc_cluster, loc_iodev, file_name, equip_list)
+            equip_list = update_csv_file.update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
+                                                    loc_cluster, loc_iodev, file_name, equip_list)
 
     return equip_list
 
@@ -106,4 +103,5 @@ def replace_original_csv(file_path):
 
         # copy .csv to .bak
         shutil.move(file_name, backup_file)
+        # copy scratch file to .csv
         shutil.move(scratch_file, file_name)

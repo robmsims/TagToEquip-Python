@@ -20,7 +20,6 @@ def get_highest_count_of_stored_tree_part(tag_part, index, data_base):
     dict_matrix = data_base[1][index][tag_part]  # matrix
     count_area = 0
     count = 0
-    # print(dict_matrix)
     for c_a, c in dict_matrix.items():
         if c > count:
             count = c
@@ -56,7 +55,6 @@ def add_highest_count_of_stored_tree_parts(tag_part, data_base, score_total_prev
                     if score_total < score:
                         score_total = score
 
-    #print('equipment count = {} equip_type_total {}'.format(eq_count, equip_type_total))
     return score_total
 
 def filter_equipment(data_base, tag_part, percent_filter):

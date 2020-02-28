@@ -1,5 +1,5 @@
 import encode_decode_map_schema
-import read_csv_file
+import tag_utils
 
 
 def add_string(g_tag, level_tree, mode):
@@ -9,7 +9,7 @@ def add_string(g_tag, level_tree, mode):
     return string
 
 
-def update_csv(map_schema, area_map, equipment_map_dict, loc_equip, loc_item, loc_tagname,
+def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
                loc_cluster, loc_iodev, file_name, equip_list):
     scratch_file = file_name.replace('.csv', '-working.csv')
     with open(scratch_file, mode='wt', encoding='utf-8') as sf:
@@ -17,10 +17,10 @@ def update_csv(map_schema, area_map, equipment_map_dict, loc_equip, loc_item, lo
         with open(file_name, mode='rt', encoding='utf-8') as rf:
             read_in_record_count = 0
             for read_line in rf:
-                tag = read_csv_file.read_in_data(loc_tagname, read_line.strip()).strip('"')
-                cluster = read_csv_file.read_in_data(loc_cluster, read_line.strip()).strip('"')
-                item = read_csv_file.read_in_data(loc_item, read_line.strip()).strip('"')
-                equipment = read_csv_file.read_in_data(loc_equip, read_line.strip()).strip('"')
+                tag = tag_utils.read_in_data(loc_tagname, read_line.strip()).strip('"')
+                cluster = tag_utils.read_in_data(loc_cluster, read_line.strip()).strip('"')
+                item = tag_utils.read_in_data(loc_item, read_line.strip()).strip('"')
+                equipment = tag_utils.read_in_data(loc_equip, read_line.strip()).strip('"')
 
                 read_in_record_count += 1
                 if read_in_record_count > 1 and not equipment == '':
@@ -34,18 +34,19 @@ def update_csv(map_schema, area_map, equipment_map_dict, loc_equip, loc_item, lo
         with open(file_name, mode='rt', encoding='utf-8') as rf:
             read_in_record_count = 0
             for read_line in rf:
-                tag = read_csv_file.read_in_data(loc_tagname, read_line.strip()).strip('"')
-                cluster = read_csv_file.read_in_data(loc_cluster, read_line.strip()).strip('"')
-                equipment = read_csv_file.read_in_data(loc_equip, read_line.strip()).strip('"')
-                iodev = read_csv_file.read_in_data(loc_iodev, read_line.strip()).strip('"')
+                tag = tag_utils.read_in_data(loc_tagname, read_line.strip()).strip('"')
+                cluster = tag_utils.read_in_data(loc_cluster, read_line.strip()).strip('"')
+                equipment = tag_utils.read_in_data(loc_equip, read_line.strip()).strip('"')
+                iodev = tag_utils.read_in_data(loc_iodev, read_line.strip()).strip('"')
 
                 mod_line = read_line
                 read_in_record_count += 1
                 if read_in_record_count > 1 and equipment == '':
-                    current_schema, g_tag = read_csv_file.get_schema(tag)
+                    current_schema, g_tag = tag_utils.get_schema(tag)
 
                     matrix0, mode, generalised_schema = encode_decode_map_schema.decode_mapping_schema(map_schema)
-                    generalised_current_schema = encode_decode_map_schema.generalise_schema(matrix0, mode, current_schema)
+                    generalised_current_schema = encode_decode_map_schema.generalise_schema(matrix0, mode,
+                                                                                            current_schema)
                     if generalised_current_schema.find(generalised_schema) == 0:
                         # construct equipment
                         equip_level_tree = matrix0[0]
@@ -110,8 +111,8 @@ def update_equipment_csv(loc_equip, loc_cluster, loc_iodev, file_name, equip_lis
                 read_in_record_count += 1
                 sf.write(read_line)  # copy existing lines
                 if read_in_record_count > 1:
-                    cluster = read_csv_file.read_in_data(loc_cluster, read_line.strip()).strip('"')
-                    equipment = read_csv_file.read_in_data(loc_equip, read_line.strip()).strip('"')
+                    cluster = tag_utils.read_in_data(loc_cluster, read_line.strip()).strip('"')
+                    equipment = tag_utils.read_in_data(loc_equip, read_line.strip()).strip('"')
                     equip_key = cluster + ':' + equipment
                     if equip_key in equip_list:
                         # remove equipment entry
