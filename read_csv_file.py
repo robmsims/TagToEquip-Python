@@ -48,12 +48,12 @@ def send_equipment(g_tag, data_base, mode, cluster):
 
 def send_item_parts(g_tag, data_base, mode, schema, cluster):
     # search_digit == 1
-    equip_level_tree = data_base[0][0]
-    first_level_tree = data_base[0][1]
-    second_level_tree = data_base[0][2]
-    third_level_tree = data_base[0][3]
-    fourth_level_tree = data_base[0][4]
-    last_digit = data_base[0][5]
+    matrix0 = data_base[0]
+    equip_level_tree = matrix0[0]
+    first_level_tree = matrix0[1]
+    second_level_tree = matrix0[2]
+    third_level_tree = matrix0[3]
+    last_digit = matrix0[5]
 
     matrix = data_base[1]
 
@@ -90,17 +90,7 @@ def send_item_parts(g_tag, data_base, mode, schema, cluster):
 
         tag = cluster + "."
         for tag_part in range(0, len(schema)):  # only record on first part of item
-            if tag_part == equip_level_tree \
-                    or tag_part == first_level_tree \
-                    or tag_part == first_level_tree + 1 and mode == 2 \
-                    or tag_part == second_level_tree \
-                    or tag_part == second_level_tree + 1 and mode == 2\
-                    or tag_part == third_level_tree \
-                    or tag_part == third_level_tree + 1 and mode == 2 \
-                    or tag_part == fourth_level_tree \
-                    or tag_part == fourth_level_tree + 1 and mode == 2 \
-                    or not g_tag[tag_part].isalpha() \
-                    or tag_part >= last_digit:
+            if tag_utils.is_tag_part_used(tag_part, schema, matrix0, mode) or tag_part >= last_digit:
                 tag += g_tag[tag_part]
 
         if tag not in list_matrix:
@@ -118,10 +108,6 @@ def send_tree_part(g_tag, data_base, mode, schema):
     matrix0 = data_base[0]
     matrix = data_base[1]
     equip_level_tree = matrix0[0]
-    first_level_tree = matrix0[1]
-    second_level_tree = matrix0[2]
-    third_level_tree = matrix0[3]
-    fourth_level_tree = matrix0[4]
 
     equip_type_count_matrix = data_base[2]
     equip_matrix = data_base[3]
@@ -135,30 +121,26 @@ def send_tree_part(g_tag, data_base, mode, schema):
     equip_type_count_matrix[index] += 1
 
     for tag_part in range(0, len(schema)):
-        if not fourth_level_tree == tag_part \
-                and not third_level_tree == tag_part \
-                and not second_level_tree == tag_part \
-                and not first_level_tree == tag_part \
-                and not equip_level_tree == tag_part:
-            if index not in matrix:
-                matrix[index] = dict()  # append an empty dict for equip index position
-
+        if tag_utils.is_tag_part_used(tag_part, schema, matrix0, mode):
             if mode < 1:
                 mode = 1  # set to 1 chr read in mode
 
             if tag_part + mode > len(schema):
-                return
+                continue
 
             if mode == 2 and not schema[tag_part: tag_part + 2] == 'NN':
-                return
+                continue
             elif not schema[tag_part: tag_part + 1].isalpha():
-                return
-
-            dict_matrix = matrix[index]  # get list containing branches for this equipment
+                continue
 
             area = g_tag[tag_part]
             if mode == 2:
-                area = area + g_tag[tag_part + 1]
+                area += g_tag[tag_part + 1]
+
+            if index not in matrix:
+                matrix[index] = dict()  # append an empty dict for equip index position
+
+            dict_matrix = matrix[index]  # get list containing branches for this equipment
 
             if tag_part not in dict_matrix:
                 dict_matrix[tag_part] = {area: 0}  # create first dictionary entry at tag_part

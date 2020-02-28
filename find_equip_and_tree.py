@@ -3,7 +3,7 @@ import tag_utils
 import read_csv_file
 
 
-def find_best_match_for_tree(schema, data_base, dont_use_words, percent_filter):
+def find_best_match_for_tree(schema, data_base, dont_use_words, percent_filter, mode):
     filter_min = 92
     if percent_filter < filter_min:
         filter_min = percent_filter
@@ -23,12 +23,13 @@ def find_best_match_for_tree(schema, data_base, dont_use_words, percent_filter):
                 continue
 
             score_total = count_equip.add_highest_count_of_stored_tree_parts(
-                        tag_part, data_base, score_total_prev, current_filter)
+                        tag_part, data_base, score_total_prev, current_filter,schema, mode)
+            print('score total ={}, schema position ={}'.format(score_total, tag_part))
+
             if score_total_max < score_total:
                 score_total_prev = score_total_max  # record previous max
                 score_total_max = score_total
                 tag_part_at_max = tag_part
-
             elif score_total_prev < score_total:
                 score_total_prev = score_total  # if two scores are the same record second as prev
 
@@ -112,9 +113,10 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, loc_cluster
                                                             max_count, schema, data_base, mode)
 
         dont_use_words = 0
+        print('test for equip position {}'.format(equip_level_tree))
         first_level_tree, count_total = find_best_match_for_tree(schema, data_base,
-                                                            dont_use_words, percent_filter)
-        print('word position {}, score_total_max {}'.format(equip_level_tree, count_total))
+                                                            dont_use_words, percent_filter, mode)
+        print('score_total_max {}'.format(count_total))
         if count_total > count_total_max:
             count_total_max = count_total
             equip_postion_max = equip_level_tree
@@ -141,7 +143,7 @@ def find_tree(file_name, schema, data_base, loc_tagname, loc_cluster, max_count,
     data_base,_ = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluster,
                                                           max_count, schema, data_base, mode)
     second_level_tree, count_total = find_best_match_for_tree(schema, data_base,
-                                                             dont_use_words, percent_filter)
+                                                             dont_use_words, percent_filter, mode)
     if second_level_tree >= 0:
         data_base[0][2] = second_level_tree
 
@@ -149,7 +151,7 @@ def find_tree(file_name, schema, data_base, loc_tagname, loc_cluster, max_count,
         data_base,_ = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluster,
                                                               max_count, schema, data_base, mode)
         third_level_tree, count_total = find_best_match_for_tree(schema, data_base,
-                                                                 dont_use_words, percent_filter)
+                                                                 dont_use_words, percent_filter, mode)
         if third_level_tree >= 0:
             data_base[0][3] = third_level_tree
 
@@ -157,7 +159,7 @@ def find_tree(file_name, schema, data_base, loc_tagname, loc_cluster, max_count,
             data_base,_ = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluster,
                                                                     max_count, schema, data_base, mode)
             fourth_level_tree, count_total = find_best_match_for_tree(schema, data_base,
-                                                                    dont_use_words, percent_filter)
+                                                                    dont_use_words, percent_filter, mode)
             if fourth_level_tree >= 0:
                 data_base[0][4] = fourth_level_tree
 

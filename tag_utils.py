@@ -28,3 +28,26 @@ def get_schema(tag):
 def read_in_data(data_loc, line_str):
     record_list = line_str.rsplit(',')
     return record_list[data_loc]
+
+
+def is_tag_part_used(tag_part, schema, matrix0, mode):
+    equip_level_tree = matrix0[0]
+    first_level_tree = matrix0[1]
+    second_level_tree = matrix0[2]
+    third_level_tree = matrix0[3]
+    fourth_level_tree = matrix0[4]
+
+    tag_part_is_used = 1
+    if tag_part == equip_level_tree \
+            or tag_part == first_level_tree \
+            or tag_part == first_level_tree + 1 and mode == 2 \
+            or tag_part == second_level_tree \
+            or tag_part == second_level_tree + 1 and mode == 2 \
+            or tag_part == third_level_tree \
+            or tag_part == third_level_tree + 1 and mode == 2 \
+            or tag_part == fourth_level_tree \
+            or tag_part == fourth_level_tree + 1 and mode == 2 \
+            or not schema[tag_part:tag_part + 1].isalpha():
+        tag_part_is_used = 0
+
+    return tag_part_is_used
