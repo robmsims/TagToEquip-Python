@@ -9,7 +9,6 @@ def find_best_match_for_tree(schema, data_base, dont_use_words, percent_filter, 
         filter_min = percent_filter
 
     score_total_max = 0
-    score_total_prev = 0
     tag_part_at_max = -1
     for current_filter in range(percent_filter, filter_min - 1, -1):
         score_total_max = 0
@@ -22,9 +21,9 @@ def find_best_match_for_tree(schema, data_base, dont_use_words, percent_filter, 
             if not char.isalpha():
                 continue
 
-            score_total = count_equip.add_highest_count_of_stored_tree_parts(
-                        tag_part, data_base, score_total_prev, current_filter,schema, mode)
-            print('score total ={}, schema position ={}'.format(score_total, tag_part))
+            score_total, score_total_count, score_total_num_stored, score_total_num_of_areas_used = \
+                count_equip.add_highest_count_of_stored_tree_parts(
+                        tag_part, data_base, score_total_prev, current_filter, schema, mode)
 
             if score_total_max < score_total:
                 score_total_prev = score_total_max  # record previous max
@@ -36,10 +35,6 @@ def find_best_match_for_tree(schema, data_base, dont_use_words, percent_filter, 
         if not score_total_max == 0:
             if score_total_prev / score_total_max < percent_filter / 100.0:
                 break
-
-    if not score_total_max == 0:
-        if score_total_prev / score_total_max > percent_filter / 100.0:
-            score_total_max = 0
 
     return tag_part_at_max, score_total_max
 
@@ -84,7 +79,7 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, loc_cluster
         if char == "W":
             word_count += 1
 
-    matrix0 = [-1,-1,-1,-1,-1,-1]  # initalize area hirerchey
+    matrix0 = [-1, -1, -1, -1, -1, -1]  # initialize area hierarchy
     matrix = []
     equip_type_count_matrix = []
     equip_matrix = []
@@ -93,11 +88,13 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, loc_cluster
     search_digit = 0
 
     count_total_max = 0
+    count_total_prev = 0
+
     first_level_tree_max = -1
     equip_postion_max = -1
 
     equip_level_tree = -1
-    for current_equip_postion in range(1, word_count+1):
+    for current_equip_postion in range(1, word_count + 1):
         count = 0
         equip_level_tree = 0
         for char in schema:
@@ -109,57 +106,65 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, loc_cluster
 
         equip_level_tree -= 1
         data_base[0][0] = equip_level_tree
-        data_base,_ = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluster,
-                                                            max_count, schema, data_base, mode)
-
+        data_base, _ = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluster,
+                                                                 max_count, schema, data_base, mode)
         dont_use_words = 0
-        print('test for equip position {}'.format(equip_level_tree))
         first_level_tree, count_total = find_best_match_for_tree(schema, data_base,
-                                                            dont_use_words, percent_filter, mode)
-        print('score_total_max {}'.format(count_total))
+                                                                 dont_use_words, percent_filter, mode)
         if count_total > count_total_max:
+            count_total_prev = count_total_max
             count_total_max = count_total
             equip_postion_max = equip_level_tree
             first_level_tree_max = first_level_tree
+        elif count_total > count_total_prev:
+            count_total_prev = count_total
 
-    if not equip_postion_max == equip_level_tree:  # reload array if different pos
-        data_base[0][0] = equip_postion_max
-        data_base,_ = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluster,
-                                                  max_count, schema, data_base, mode)
+    # compare highest core with next highest score
+    if not count_total_max == 0:
+        if count_total_prev / count_total_max <= percent_filter / 100.0:
+            print('first_level_tree_max {}, count_total_max {}'.format(first_level_tree_max + 1, count_total_max))
 
-    data_base[0][1] = first_level_tree_max
-    if count_total_max == 0:
-        data_base[0][0] = -1
+            if not equip_postion_max == equip_level_tree:  # reload array if different pos
+                data_base[0][0] = equip_postion_max
+                data_base, _ = read_csv_file.move_scenario_data_to_array(
+                    search_digit, file_name, loc_tagname, loc_cluster, max_count, schema, data_base, mode)
+
+            data_base[0][1] = first_level_tree_max
+
+    if data_base[0][1] == -1:
+        data_base[0][0] = -1  # equipment position not found flag
+        print('error scoring for different schema positions is too similar. score_total_prev {} score_total_max {}'
+              .format(count_total_prev, count_total_max))
 
     return data_base
 
 
-def find_tree(file_name, schema, data_base, loc_tagname, loc_cluster, max_count, mode, filter, percent_filter):
+def find_tree(file_name, schema, data_base, loc_tagname, loc_cluster, max_count, mode, score_filter, percent_filter):
     search_digit = 0
     dont_use_words = 1
     first_level_tree = data_base[0][1]
 
-    data_base = count_equip.filter_equipment(data_base, first_level_tree, filter)
-    data_base,_ = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluster,
-                                                          max_count, schema, data_base, mode)
+    data_base = count_equip.filter_equipment(data_base, first_level_tree, score_filter)
+    data_base, _ = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluster,
+                                                             max_count, schema, data_base, mode)
     second_level_tree, count_total = find_best_match_for_tree(schema, data_base,
-                                                             dont_use_words, percent_filter, mode)
+                                                              dont_use_words, percent_filter, mode)
     if second_level_tree >= 0:
         data_base[0][2] = second_level_tree
 
         data_base = count_equip.filter_equipment(data_base, second_level_tree, percent_filter)
-        data_base,_ = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluster,
-                                                              max_count, schema, data_base, mode)
+        data_base, _ = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluster,
+                                                                 max_count, schema, data_base, mode)
         third_level_tree, count_total = find_best_match_for_tree(schema, data_base,
                                                                  dont_use_words, percent_filter, mode)
         if third_level_tree >= 0:
             data_base[0][3] = third_level_tree
 
             data_base = count_equip.filter_equipment(data_base, third_level_tree, percent_filter)
-            data_base,_ = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluster,
-                                                                    max_count, schema, data_base, mode)
+            data_base, _ = read_csv_file.move_scenario_data_to_array(
+                search_digit, file_name, loc_tagname, loc_cluster, max_count, schema, data_base, mode)
             fourth_level_tree, count_total = find_best_match_for_tree(schema, data_base,
-                                                                    dont_use_words, percent_filter, mode)
+                                                                      dont_use_words, percent_filter, mode)
             if fourth_level_tree >= 0:
                 data_base[0][4] = fourth_level_tree
 

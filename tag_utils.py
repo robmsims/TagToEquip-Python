@@ -37,7 +37,7 @@ def is_tag_part_used(tag_part, schema, matrix0, mode):
     third_level_tree = matrix0[3]
     fourth_level_tree = matrix0[4]
 
-    tag_part_is_used = 1
+    tag_part_is_used = 0
     if tag_part == equip_level_tree \
             or tag_part == first_level_tree \
             or tag_part == first_level_tree + 1 and mode == 2 \
@@ -48,6 +48,6 @@ def is_tag_part_used(tag_part, schema, matrix0, mode):
             or tag_part == fourth_level_tree \
             or tag_part == fourth_level_tree + 1 and mode == 2 \
             or not schema[tag_part:tag_part + 1].isalpha():
-        tag_part_is_used = 0
+        tag_part_is_used = 1
 
     return tag_part_is_used

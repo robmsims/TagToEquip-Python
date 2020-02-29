@@ -48,6 +48,7 @@ def get_schema_and_create_config_file(file_path, config_file):
     # is 2 character mode needed
     first_level_tree = data_base[0][1]
     if first_level_tree < 0:  # try 2ch mode
+        print('try find equip position and first area in 2ch numeric mode')
         mode = 2  # chr area designation
         percent_filter = 98
         data_base = find_equip_and_tree.find_equip_type_position_and_import_data(
@@ -68,7 +69,7 @@ def get_schema_and_create_config_file(file_path, config_file):
             data_base = find_equip_and_tree.find_equip_type_position_and_import_data(
                     file_name, loc_tagname, loc_cluster, max_count, top_schema, mode, percent_filter)
             data_base[0][1] = second_level_tree
-            # get area hierachey again
+            # get area hierarchy again
             score_filter = 90
             data_base = find_equip_and_tree.find_tree(file_name, top_schema, data_base, loc_tagname, loc_cluster,
                                                       max_count, mode, score_filter, percent_filter)
@@ -107,12 +108,14 @@ def get_schema_and_create_config_file(file_path, config_file):
     data_base[0][4] = fourth_level_tree
 
     # - create a map schema
-    data_base, is_item_found = find_equip_and_tree.find_item(file_name, loc_tagname, loc_cluster,
-                                                             max_count, top_schema, data_base, mode)
-    first_level_tree = data_base[0][1]
-    second_level_tree = data_base[0][2]
-    third_level_tree = data_base[0][3]
-    fourth_level_tree = data_base[0][4]
+    is_item_found = 0
+    if first_level_tree >= 0:
+        data_base, is_item_found = find_equip_and_tree.find_item(file_name, loc_tagname, loc_cluster,
+                                                                 max_count, top_schema, data_base, mode)
+        first_level_tree = data_base[0][1]
+        second_level_tree = data_base[0][2]
+        third_level_tree = data_base[0][3]
+        fourth_level_tree = data_base[0][4]
 
     if is_item_found:
         last_digit = data_base[0][5]
@@ -142,6 +145,8 @@ def get_schema_and_create_config_file(file_path, config_file):
         equipment_list = sorted(data_base[1][0])
         write_read_config_file.write_config(config_file, map_schema, equipment_list)
         print('Default config file writen')
+    else:
+        print('Error default config file not writen. Schema not found')
 
 
 def main(file_path=''):

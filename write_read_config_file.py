@@ -15,8 +15,8 @@ def read_config_file(config_file):
                 area_map = area_map[area_map.find('=') + 1:].strip()
 
             if line == '[Equipment Name Mapping]':
-                for read_line in f:
-                    equip_list = read_line.strip().rsplit('(')
+                for read_equip in f:
+                    equip_list = read_equip.strip().rsplit('(')
                     cluster = equip_list[1][0:equip_list[1].find(')')]
                     area_numbers = equip_list[2][0:equip_list[2].find(')')]
                     area_name = equip_list[2][equip_list[2].find('=') + 1:].strip()

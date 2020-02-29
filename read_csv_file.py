@@ -90,7 +90,7 @@ def send_item_parts(g_tag, data_base, mode, schema, cluster):
 
         tag = cluster + "."
         for tag_part in range(0, len(schema)):  # only record on first part of item
-            if tag_utils.is_tag_part_used(tag_part, schema, matrix0, mode) or tag_part >= last_digit:
+            if not tag_utils.is_tag_part_used(tag_part, schema, matrix0, mode) or tag_part >= last_digit:
                 tag += g_tag[tag_part]
 
         if tag not in list_matrix:
@@ -121,7 +121,7 @@ def send_tree_part(g_tag, data_base, mode, schema):
     equip_type_count_matrix[index] += 1
 
     for tag_part in range(0, len(schema)):
-        if tag_utils.is_tag_part_used(tag_part, schema, matrix0, mode):
+        if not tag_utils.is_tag_part_used(tag_part, schema, matrix0, mode):
             if mode < 1:
                 mode = 1  # set to 1 chr read in mode
 
