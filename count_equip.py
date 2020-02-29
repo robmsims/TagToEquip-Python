@@ -14,7 +14,8 @@ def find_num_of_areas_used(data_base, tag_part, count_area):
             continue
 
         if count_area in matrix[index][tag_part]:
-            equip_count += matrix[index][tag_part][count_area]
+            equip_count += 1
+
     return equip_count
 
 
@@ -58,7 +59,7 @@ def add_highest_count_of_stored_tree_parts(tag_part, data_base, score_total_prev
                     percent = count / num_stored
                     if percent >= current_filter / 100:
                         num_of_areas_used = find_num_of_areas_used(data_base, tag_part, count_area)
-                        score = percent * (count / num_of_areas_used) * count
+                        score = percent * count / num_of_areas_used
                         if score_total < score:
                             score_total = score
                             score_total_count = count
