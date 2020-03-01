@@ -2,15 +2,8 @@ import encode_decode_map_schema
 import tag_utils
 
 
-def add_string(g_tag, level_tree, mode):
-    string = g_tag[level_tree]
-    if mode == 2:
-        string += g_tag[level_tree + 1]
-    return string
-
-
 def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
-               loc_cluster, loc_iodev, loc_project_name, file_name, equip_list):
+               loc_cluster, loc_iodev, loc_project_name, file_name, equip_list, equipment_map_dict):
     scratch_file = file_name.replace('.csv', '-working.csv')
     with open(scratch_file, mode='wt', encoding='utf-8') as sf:
         existing_cluster_equip_item_list = list()
@@ -60,13 +53,13 @@ def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
                         equip = ''
                         for char in area_map:
                             if char == 'A' and first_level_tree >= 0:
-                                equip += add_string(g_tag, first_level_tree, mode)
+                                equip += tag_utils.add_equip_part(g_tag, first_level_tree, mode)
                             elif char == 'B' and second_level_tree >= 0:
-                                equip += add_string(g_tag, second_level_tree, mode)
+                                equip += tag_utils.add_equip_part(g_tag, second_level_tree, mode)
                             elif char == 'C' and third_level_tree >= 0:
-                                equip += add_string(g_tag, third_level_tree, mode)
+                                equip += tag_utils.add_equip_part(g_tag, third_level_tree, mode)
                             elif char == 'D' and fourth_level_tree >= 0:
-                                equip += add_string(g_tag, fourth_level_tree, mode)
+                                equip += tag_utils.add_equip_part(g_tag, fourth_level_tree, mode)
                             elif char == '.':
                                 equip += '.'
 
@@ -80,7 +73,9 @@ def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
                                 item += g_tag[index]
 
                         # record all new equipment + iodevice and project name
-                        equip_key = cluster + ':' + equip
+                        old_equip_key = cluster + ':' + equip
+                        equip_key = cluster + ':' + equipment_map_dict[old_equip_key]
+
                         if equip_key not in equip_list:
                             equip_list[equip_key] = [iodev, project_name]
 

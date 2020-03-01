@@ -51,3 +51,11 @@ def is_tag_part_used(tag_part, schema, matrix0, mode):
         tag_part_is_used = 1
 
     return tag_part_is_used
+
+
+def add_equip_part(g_tag, level_tree, mode):
+    eq_part = g_tag[level_tree]
+    if mode == 2:
+        eq_part += g_tag[level_tree + 1]
+
+    return eq_part

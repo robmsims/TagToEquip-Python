@@ -67,7 +67,7 @@ def get_loc_of_header_columns(file_name):
     return loc_equip, loc_item, loc_tagname, loc_cluster, loc_iodev, loc_project_name
 
 
-def update_tag_csvs(map_schema, area_map, file_path):
+def update_tag_csvs(map_schema, area_map, file_path, equipment_map_dict):
     file_list = get_file_paths(file_path)
     equip_list = dict()
 
@@ -76,7 +76,8 @@ def update_tag_csvs(map_schema, area_map, file_path):
             loc_equip, loc_item, loc_tagname, loc_cluster, loc_iodev, loc_project_name = \
                 get_loc_of_header_columns(file_name)
             equip_list = update_csv_file.update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
-                                                    loc_cluster, loc_iodev, loc_project_name, file_name, equip_list)
+                                                    loc_cluster, loc_iodev, loc_project_name, file_name,
+                                                    equip_list, equipment_map_dict)
 
     return equip_list
 

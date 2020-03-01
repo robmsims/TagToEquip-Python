@@ -18,11 +18,11 @@ import encode_decode_map_schema
 
 def update_csv_files(file_path, config_file):
     map_schema, area_map, equipment_map_dict = write_read_config_file.read_config_file(config_file)
-    equip_list = read_in_tree_structure.update_tag_csvs(map_schema, area_map, file_path)
+    equip_list = read_in_tree_structure.update_tag_csvs(map_schema, area_map, file_path, equipment_map_dict)
 
     read_in_tree_structure.update_equipment_csv(file_path, equip_list)
 
-    read_in_tree_structure.replace_original_csv(file_path)
+    #read_in_tree_structure.replace_original_csv(file_path)
 
 
 def get_schema_and_create_config_file(file_path, config_file):

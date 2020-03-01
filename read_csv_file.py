@@ -2,22 +2,6 @@ import encode_decode_map_schema
 import tag_utils
 
 
-def add_equip_part(g_tag, level_tree, mode):
-    eq_part = g_tag[level_tree]
-    if mode == 2:
-        eq_part += g_tag[level_tree + 1]
-
-    return eq_part
-
-
-def store_equip(matrix_list, tree, g_tag, level_tree, mode):
-    tree += '.' + add_equip_part(g_tag, level_tree, mode)
-    if tree not in matrix_list:
-        matrix_list.append(tree)
-
-    return tree
-
-
 def send_equipment(g_tag, data_base, mode, cluster):
     # search_digit == 2
     first_level_tree = data_base[0][1]
@@ -34,16 +18,24 @@ def send_equipment(g_tag, data_base, mode, cluster):
     matrix_list = matrix[index]
 
     tree = cluster + ":"
-    tree = store_equip(matrix_list, tree, g_tag, first_level_tree, mode)
+    tree += tag_utils.add_equip_part(g_tag, first_level_tree, mode)
+    if tree not in matrix_list:
+        matrix_list.append(tree)
 
     if second_level_tree >= 0:
-        tree = store_equip(matrix_list, tree, g_tag, second_level_tree, mode)
+        tree += '.' + tag_utils.add_equip_part(g_tag, second_level_tree, mode)
+        if tree not in matrix_list:
+            matrix_list.append(tree)
 
     if third_level_tree >= 0:
-        tree = store_equip(matrix_list, tree, g_tag, third_level_tree, mode)
+        tree += '.' + tag_utils.add_equip_part(g_tag, third_level_tree, mode)
+        if tree not in matrix_list:
+            matrix_list.append(tree)
 
     if fourth_level_tree >= 0:
-        store_equip(matrix_list, tree, g_tag, fourth_level_tree, mode)
+        tree += '.' + tag_utils.add_equip_part(g_tag, fourth_level_tree, mode)
+        if tree not in matrix_list:
+            matrix_list.append(tree)
 
 
 def send_item_parts(g_tag, data_base, mode, schema, cluster):
@@ -108,13 +100,13 @@ def send_tree_part(g_tag, data_base, mode, schema):
         index = equip_matrix.index(eq_part)
         equip_type_count_matrix[index] += 1
     else:
-        eq_part += '.' + add_equip_part(g_tag, first_level_tree, mode)
+        eq_part += '.' + tag_utils.add_equip_part(g_tag, first_level_tree, mode)
 
         if second_level_tree >= 0:
-            eq_part += '.' + add_equip_part(g_tag, second_level_tree, mode)
+            eq_part += '.' + tag_utils.add_equip_part(g_tag, second_level_tree, mode)
 
         if third_level_tree >= 0:
-            eq_part += '.' + add_equip_part(g_tag, third_level_tree, mode)
+            eq_part += '.' + tag_utils.add_equip_part(g_tag, third_level_tree, mode)
 
     if eq_part in equip_matrix:
         index = equip_matrix.index(eq_part)
@@ -131,7 +123,7 @@ def send_tree_part(g_tag, data_base, mode, schema):
                 elif not schema[tag_part: tag_part + 1].isalpha():
                     continue
 
-                area = add_equip_part(g_tag, tag_part, mode)
+                area = tag_utils.add_equip_part(g_tag, tag_part, mode)
 
                 if index not in matrix:
                     matrix[index] = dict()  # append an empty dict for equip index position
