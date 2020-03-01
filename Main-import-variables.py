@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Retrive and print schema from a fime
+"""Retrieve and print schema from a variable fime
+    save a default config file
+    process default config file on 2nd run writeing changes back to csv file
+
+    todo: create csv files from original dbf files in master and include projects
 
 Usage:
     python3 Main-import-variables.py filename    eg D:\Import\Site1\variable.csv
@@ -160,8 +164,8 @@ def get_schema_and_create_config_file(file_path, config_file):
 
 def main(file_path=''):
     if file_path == '':
-        #file_path = 'D:\\Import\\example'  # set a default file name
-        file_path = 'D:\\Import\\site1'  # set a default file name
+        file_path = 'D:\\Import\\example'  # set a default file name
+        #file_path = 'D:\\Import\\site1'  # set a default file name
         print('argument not entered. using default {}'.format(file_path))
 
     config_file = file_path + "\\mapping.ini"

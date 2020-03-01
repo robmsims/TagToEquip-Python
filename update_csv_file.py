@@ -10,7 +10,7 @@ def add_string(g_tag, level_tree, mode):
 
 
 def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
-               loc_cluster, loc_iodev, file_name, equip_list):
+               loc_cluster, loc_iodev, loc_project_name, file_name, equip_list):
     scratch_file = file_name.replace('.csv', '-working.csv')
     with open(scratch_file, mode='wt', encoding='utf-8') as sf:
         existing_cluster_equip_item_list = list()
@@ -38,6 +38,7 @@ def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
                 cluster = tag_utils.read_in_data(loc_cluster, read_line.strip()).strip('"')
                 equipment = tag_utils.read_in_data(loc_equip, read_line.strip()).strip('"')
                 iodev = tag_utils.read_in_data(loc_iodev, read_line.strip()).strip('"')
+                project_name = tag_utils.read_in_data(loc_project_name, read_line.strip()).strip('"')
 
                 mod_line = read_line
                 read_in_record_count += 1
@@ -78,12 +79,10 @@ def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
                             if index >= last_digit:
                                 item += g_tag[index]
 
-                        # record all new equipment + iodevice if missing
+                        # record all new equipment + iodevice and project name
                         equip_key = cluster + ':' + equip
                         if equip_key not in equip_list:
-                            equip_list[equip_key] = iodev
-                        elif len(iodev) > 0:  # i/o device only in variables.csv
-                            equip_list[equip_key] = iodev
+                            equip_list[equip_key] = [iodev, project_name]
 
                         # check if equip.item is already used
                         equip_key = cluster + ':' + equipment + ":" + item
@@ -101,10 +100,11 @@ def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
     return equip_list
 
 
-def update_equipment_csv(loc_equip, loc_cluster, loc_iodev, file_name, equip_list):
+def update_equipment_csv(loc_equip, loc_cluster, loc_iodev, loc_project_name, file_name, equip_list):
     print('inital equip list length = {}'.format(len(equip_list)))
     scratch_file = file_name.replace('.csv', '-working.csv')
     with open(scratch_file, mode='wt', encoding='utf-8') as sf:
+        # read existing equipment and delete from new equipment list if match
         with open(file_name, mode='rt', encoding='utf-8') as rf:
             read_in_record_count = 0
             for read_line in rf:
@@ -133,9 +133,13 @@ def update_equipment_csv(loc_equip, loc_cluster, loc_iodev, file_name, equip_lis
             new_list[loc_cluster] = '\"' + cluster + '\"'
             new_list[loc_equip] = '\"' + equip + '\"'
 
-            iodev = equip_list[equipment]
+            iodev = equip_list[equipment][0]
+            project_name = equip_list[equipment][1]
             if len(iodev) > 0:
                 new_list[loc_iodev] = '\"' + iodev + '\"'
+
+            if len(project_name) > 0:
+                new_list[loc_project_name] = '\"' + project_name + '\"'
 
             mod_line = ','.join(new_list)
 

@@ -1,5 +1,4 @@
 import read_csv_file
-import encode_decode_map_schema
 import update_csv_file
 import shutil
 
@@ -44,6 +43,7 @@ def get_loc_of_header_columns(file_name):
     loc_item = -1
     loc_tagname = -1
     loc_iodev = -1  # only applicable to variable csv and equip csv
+    loc_project_mame = -1
     if file_name.find('equip.csv') >= 0:
         loc_equip = header.index('name')
         loc_iodev = header.index('i/o device')
@@ -63,7 +63,8 @@ def get_loc_of_header_columns(file_name):
             loc_tagname = header.index('alarm tag')
 
     loc_cluster = header.index('cluster name')
-    return loc_equip, loc_item, loc_tagname, loc_cluster, loc_iodev
+    loc_project_name = header.index('project')
+    return loc_equip, loc_item, loc_tagname, loc_cluster, loc_iodev, loc_project_name
 
 
 def update_tag_csvs(map_schema, area_map, file_path):
@@ -72,9 +73,10 @@ def update_tag_csvs(map_schema, area_map, file_path):
 
     for file_name in file_list:
         if not file_name.find('equip.csv') >= 0:  # skip equipment file
-            loc_equip, loc_item, loc_tagname, loc_cluster, loc_iodev = get_loc_of_header_columns(file_name)
+            loc_equip, loc_item, loc_tagname, loc_cluster, loc_iodev, loc_project_name = \
+                get_loc_of_header_columns(file_name)
             equip_list = update_csv_file.update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
-                                                    loc_cluster, loc_iodev, file_name, equip_list)
+                                                    loc_cluster, loc_iodev, loc_project_name, file_name, equip_list)
 
     return equip_list
 
@@ -84,8 +86,9 @@ def update_equipment_csv(file_path, equip_list):
 
     for file_name in file_list:
         if file_name.find('equip.csv') >= 0:
-            loc_equip, _, _, loc_cluster, loc_iodev = get_loc_of_header_columns(file_name)
-            update_csv_file.update_equipment_csv(loc_equip, loc_cluster, loc_iodev, file_name, equip_list)
+            loc_equip, _, _, loc_cluster, loc_iodev, loc_project_name = get_loc_of_header_columns(file_name)
+            update_csv_file.update_equipment_csv(
+                loc_equip, loc_cluster, loc_iodev, loc_project_name, file_name, equip_list)
 
 
 def replace_original_csv(file_path):
