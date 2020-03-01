@@ -54,7 +54,7 @@ def get_schema_and_create_config_file(file_path, config_file):
         data_base = find_equip_and_tree.find_equip_type_position_and_import_data(
                         file_name, loc_tagname, loc_cluster, max_count, top_schema, mode, percent_filter)
 
-    # get area hierachey
+    # get area hierarchy
     if first_level_tree >= 0:
         score_filter = 90
         data_base = find_equip_and_tree.find_tree(file_name, top_schema, data_base, loc_tagname, loc_cluster,
@@ -112,10 +112,19 @@ def get_schema_and_create_config_file(file_path, config_file):
     if first_level_tree >= 0:
         data_base, is_item_found = find_equip_and_tree.find_item(file_name, loc_tagname, loc_cluster,
                                                                  max_count, top_schema, data_base, mode)
+
+        equip_level_tree = data_base[0][0]
         first_level_tree = data_base[0][1]
         second_level_tree = data_base[0][2]
         third_level_tree = data_base[0][3]
         fourth_level_tree = data_base[0][4]
+        last_digit = data_base[0][5]
+        if last_digit < fourth_level_tree + mode - 1 \
+                or last_digit < third_level_tree + mode - 1 \
+                or last_digit < second_level_tree + mode - 1 \
+                or last_digit < first_level_tree + mode - 1 \
+                or last_digit < equip_level_tree:
+            print('Warning item part start is before area digit')
 
     if is_item_found:
         last_digit = data_base[0][5]
@@ -140,7 +149,7 @@ def get_schema_and_create_config_file(file_path, config_file):
 
         # - create an equipment tree based on found schema so we can create a file for mapping
         data_base = read_in_tree_structure.get_equipment_tree(file_name, loc_tagname, loc_cluster,
-                                                              max_count, map_schema)
+                                                              max_count, map_schema, data_base, mode)
 
         equipment_list = sorted(data_base[1][0])
         write_read_config_file.write_config(config_file, map_schema, equipment_list)
@@ -151,7 +160,8 @@ def get_schema_and_create_config_file(file_path, config_file):
 
 def main(file_path=''):
     if file_path == '':
-        file_path = 'D:\\Import\\example'  # set a default file name
+        #file_path = 'D:\\Import\\example'  # set a default file name
+        file_path = 'D:\\Import\\site1'  # set a default file name
         print('argument not entered. using default {}'.format(file_path))
 
     config_file = file_path + "\\mapping.ini"

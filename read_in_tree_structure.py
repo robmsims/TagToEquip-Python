@@ -4,17 +4,10 @@ import update_csv_file
 import shutil
 
 
-def get_equipment_tree(file_name, loc_tagname, loc_cluster, max_count, map_schema):
-    matrix0, mode, schema = encode_decode_map_schema.decode_mapping_schema(map_schema)
-    data_base = list()
-    data_base.append(matrix0)  # matrix0 - tree hierachy
-    data_base.append(dict())  # matrix - use for equipment tree
-    data_base.append(list())  # equip_type_count_matrix - dummy place marker
-    data_base.append(list())  # equip_matrix - dummy place marker
-
+def get_equipment_tree(file_name, loc_tagname, loc_cluster, max_count, map_schema, data_base, mode):
     search_digit = 2  # read in csv and make flat equip list with no equipment
     data_base,_ = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname,
-                                                            loc_cluster, max_count, schema,data_base, mode)
+                                                            loc_cluster, max_count, map_schema, data_base, mode)
 
     return data_base
 

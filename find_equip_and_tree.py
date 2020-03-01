@@ -122,8 +122,6 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, loc_cluster
     # compare highest core with next highest score
     if not count_total_max == 0:
         if count_total_prev / count_total_max <= percent_filter / 100.0:
-            print('first_level_tree_max {}, count_total_max {}'.format(first_level_tree_max + 1, count_total_max))
-
             if not equip_postion_max == equip_level_tree:  # reload array if different pos
                 data_base[0][0] = equip_postion_max
                 data_base, _ = read_csv_file.move_scenario_data_to_array(

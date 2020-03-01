@@ -27,7 +27,8 @@ def decode_mapping_schema(map_schema):
 
         if char == 'a' or char == 'b' or char == 'c' or char == 'd':
             mode = 2
-            schema = schema[0:index - 1] + "NN" + schema[index + 1:]
+            if schema[index - 1:index] == '*':
+                schema = schema[0:index - 1] + "NN" + schema[index + 1:]
         elif char == 'A' or char == 'B' or char == 'C' or char == 'D':
             schema = schema[0:index] + "*" + schema[index + 1:]
         elif char == 'I':
@@ -45,6 +46,19 @@ def decode_mapping_schema(map_schema):
     return matrix0, mode, schema
 
 
+def insert_into_map_schema(map_schema, end_schema, level_tree, mode, string):
+    string = string[0:mode]
+
+    if len(map_schema) >= level_tree + (mode -1):  # don't write into a position that doesn't exist
+        if map_schema[level_tree:level_tree + 1].isalnum():
+            if mode == 1 or (mode == 2 and not map_schema[level_tree:level_tree + 1].isalnum()):
+                map_schema = map_schema[0:level_tree] + string + map_schema[level_tree + mode:]
+                if level_tree > end_schema:
+                    end_schema = level_tree + (mode -1)  # cater for 2ch mode
+
+    return map_schema, end_schema
+
+
 def encode_mapping_schema(matrix0, mode, top_schema):
     equip_level_tree = matrix0[0]
     first_level_tree = matrix0[1]
@@ -58,53 +72,23 @@ def encode_mapping_schema(matrix0, mode, top_schema):
     # find end of mapping
     end_schema = 0
     if first_level_tree >= 0:
-        map_schema = map_schema[0:first_level_tree] + "A" + map_schema[first_level_tree + 1:]
-        end_schema = first_level_tree
-    if first_level_tree >= 0 and mode == 2:
-        map_schema = map_schema[0:first_level_tree + 1] + "a" + map_schema[first_level_tree + 2:]
-        end_schema = first_level_tree + 1
+        map_schema, end_schema = insert_into_map_schema(map_schema, end_schema, first_level_tree, mode, 'Aa')
 
     if second_level_tree >= 0:
-        map_schema = map_schema[0:second_level_tree] + "B" + map_schema[second_level_tree + 1:]
-        end_schema = second_level_tree
-    if second_level_tree >= 0 and mode == 2:
-        map_schema = map_schema[0:second_level_tree + 1] + "b" + map_schema[second_level_tree + 2:]
-        end_schema = second_level_tree + 1
+        map_schema, end_schema = insert_into_map_schema(map_schema, end_schema, second_level_tree, mode, 'Ba')
 
     if third_level_tree >= 0:
-        map_schema = map_schema[0:third_level_tree] + "C" + map_schema[third_level_tree + 1:]
-        end_schema = third_level_tree
-    if third_level_tree >= 0 and mode == 2:
-        map_schema = map_schema[0:third_level_tree + 1] + "c" + map_schema[third_level_tree + 2:]
-        end_schema = third_level_tree + 1
+        map_schema, end_schema = insert_into_map_schema(map_schema, end_schema, third_level_tree, mode, 'Cc')
 
     if fourth_level_tree >= 0:
-        map_schema = map_schema[0:fourth_level_tree] + "D" + map_schema[fourth_level_tree + 1:]
-        end_schema = fourth_level_tree
-    if fourth_level_tree >= 0 and mode == 2:
-        map_schema = map_schema[0:fourth_level_tree + 1] + "d" + map_schema[fourth_level_tree + 2:]
-        end_schema = fourth_level_tree + 1
+        map_schema, end_schema = insert_into_map_schema(map_schema, end_schema, fourth_level_tree, mode, 'Dd')
 
-    map_schema = map_schema[0:equip_level_tree] + "E" + map_schema[equip_level_tree + 1:]
-    if equip_level_tree > end_schema:
-        end_schema = equip_level_tree
+    if equip_level_tree >= 0:
+        map_schema, end_schema = insert_into_map_schema(map_schema, end_schema, equip_level_tree, 1, 'E')
 
-    # do next bit only if Item has been found
-    if not last_digit == -1:
-        if last_digit > end_schema:
-            end_schema = last_digit
-            map_schema = map_schema[0:last_digit] + "I"
-        else:
-            print('Warning item part start is before area digit')
-            map_schema = map_schema[0:last_digit] + "I" + map_schema[last_digit + 1:]
-
-        map_schema = map_schema[0:end_schema + 1]
-
-    # replace 'W' or 'N' with '*'
-    for index in range(len(map_schema)):
-        char = map_schema[index:index + 1]
-        if char == 'N' or char == 'W':
-            map_schema = map_schema[0:index] + '*' + map_schema[index + 1:]
+    if last_digit >= 0:
+        map_schema, end_schema = insert_into_map_schema(map_schema, end_schema, last_digit, 1, 'I')
+        map_schema = map_schema[0:end_schema + 1] # only truncate when looking for item
 
     return map_schema
 
