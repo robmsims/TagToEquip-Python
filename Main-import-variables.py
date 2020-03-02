@@ -8,12 +8,43 @@
 Usage:
     python3 Main-import-variables.py filename    eg D:\Import\Site1\variable.csv
 """
+
 import sys
 import find_equip_and_tree
 import read_in_tree_structure
 import os.path
 import write_read_config_file
 import encode_decode_map_schema
+import read_write_dbf
+import read_write_project_structure
+
+
+def map_dbf_to_csv(file_path):
+    # find master.dbf
+    master_file = file_path[0:file_path.rfind('\\')] + '\\master.dbf'
+
+    # build know project name vs project path
+    dbf_file_exists = os.path.isfile(master_file)
+    if dbf_file_exists:
+        master_list = read_write_dbf.read_in_dbf(master_file, 'master.dbf')
+        master_project_name = read_write_project_structure.find_name_for_path(master_list, file_path)
+        print(master_project_name)
+
+        # mark master project to be read for included projects
+        master_list = read_write_project_structure.\
+            write_field_value(master_list, master_project_name, 'include_read_in_status', 1)
+
+        # make flat list of projects
+        master_list = read_write_project_structure.read_through_include_files(master_list)
+        project_list = list()
+        for record in master_list:
+            if record['include_read_in_status'][1] == 2:
+                project_list.append(record['name'][1])
+
+        print('list of projects to convert is {}'.format(project_list))
+
+        # export all dbf files to csv
+
 
 
 def update_csv_files(file_path, config_file):
@@ -164,12 +195,21 @@ def get_schema_and_create_config_file(file_path, config_file):
 
 def main(file_path=''):
     if file_path == '':
-        file_path = 'D:\\Import\\example'  # set a default file name
+        #file_path = 'D:\\Import\\example'  # set a default file name
         #file_path = 'D:\\Import\\site1'  # set a default file name
+        file_path = 'C:\\ProgramData\\Schneider Electric\\Citect SCADA 2018\\User\\Example\\'
+
         print('argument not entered. using default {}'.format(file_path))
 
-    config_file = file_path + "\\mapping.ini"
+    file_path = file_path.rstrip('\\')
 
+    # look for variables.dbf
+    dbf_file = file_path + '\\variable.dbf'
+    dbf_file_exists = os.path.isfile(dbf_file)
+    if dbf_file_exists:
+        map_dbf_to_csv(file_path)
+
+    config_file = file_path + '\\mapping.ini'
     config_file_exists = os.path.isfile(config_file)
     if not config_file_exists:
         get_schema_and_create_config_file(file_path, config_file)
