@@ -184,8 +184,9 @@ def move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluste
         for read_line in f:
             read_in_record_count += 1
             if read_in_record_count > 0:
-                tag = tag_utils.read_in_data(loc_tagname, read_line.strip()).strip('"')
-                cluster = tag_utils.read_in_data(loc_cluster, read_line.strip()).strip('"')
+                tag = tag_utils.read_in_data(loc_tagname, read_line.strip())
+                cluster = tag_utils.read_in_data(loc_cluster, read_line.strip())
+
                 current_schema, g_tag = tag_utils.get_schema(tag)
 
                 generalised_current_schema = encode_decode_map_schema.generalise_schema(matrix0, mode, current_schema)

@@ -46,7 +46,7 @@ def read_through_include_files(master_list):
                     found = 1
                     master_list[master_index]['include_read_in_status'][1] = 2
                     include_file_path = master_list[master_index]['path'][1].rstrip('\\') + '\\' + 'include.dbf'
-                    include_list = read_write_dbf.read_in_dbf(include_file_path, project)
+                    include_list, _ = read_write_dbf.read_in_dbf(include_file_path)
                     for include_index in range(len(include_list)):
                         project = include_list[include_index]['name'][1]
                         if project not in project_black_list:
@@ -57,4 +57,3 @@ def read_through_include_files(master_list):
             break
 
     return master_list
-

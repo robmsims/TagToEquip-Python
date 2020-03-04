@@ -17,16 +17,18 @@ import write_read_config_file
 import encode_decode_map_schema
 import read_write_dbf
 import read_write_project_structure
+import friendly_name_lookup
 
 
 def map_dbf_to_csv(file_path):
     # find master.dbf
-    master_file = file_path[0:file_path.rfind('\\')] + '\\master.dbf'
+    master_file_path = file_path[0:file_path.rfind('\\')]
+    master_file = master_file_path + '\\master.dbf'
 
     # build know project name vs project path
     dbf_file_exists = os.path.isfile(master_file)
     if dbf_file_exists:
-        master_list = read_write_dbf.read_in_dbf(master_file, 'master.dbf')
+        master_list,_ = read_write_dbf.read_in_dbf(master_file)
         master_project_name = read_write_project_structure.find_name_for_path(master_list, file_path)
         print(master_project_name)
 
@@ -43,8 +45,13 @@ def map_dbf_to_csv(file_path):
 
         print('list of projects to convert is {}'.format(project_list))
 
-        # export all dbf files to csv
+        # read in friendly name
+        dbf_csv_lookup_dict = friendly_name_lookup.build_field_friendly_name_lookup(file_path)
 
+        # export all dbf files to convert
+        read_write_dbf.convert_dbf_to_csv_in_project_list(master_list, project_list, file_path, dbf_csv_lookup_dict)
+
+        print('end fo dbf export to csv file in master project')
 
 
 def update_csv_files(file_path, config_file):
@@ -62,7 +69,16 @@ def get_schema_and_create_config_file(file_path, config_file):
     # get header file
     header = read_in_tree_structure.read_first_line(file_name)
 
+    if 'tag name' not in header:
+        print('tag name, not found in file {}'.format(file_name))
+        return
+
     loc_tagname = header.index('tag name')
+
+    if 'cluster name' not in header:
+        print('cluster name, not found in file {}'.format(file_name))
+        return
+
     loc_cluster = header.index('cluster name')
 
     # get most common schema
@@ -207,7 +223,7 @@ def main(file_path=''):
     dbf_file = file_path + '\\variable.dbf'
     dbf_file_exists = os.path.isfile(dbf_file)
     if dbf_file_exists:
-        map_dbf_to_csv(file_path)
+        map_dbf_to_csv(file_path)  # todo move this to next if statement.
 
     config_file = file_path + '\\mapping.ini'
     config_file_exists = os.path.isfile(config_file)
