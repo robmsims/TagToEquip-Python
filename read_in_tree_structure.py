@@ -46,14 +46,10 @@ def get_file_paths(file_path):
 
 
 def get_loc_of_header_columns(file_name):
-    print('geting friendly name for file {}'.format(file_name))
     header = read_first_line(file_name)
-
     loc_item = -1
     loc_tagname = -1
     loc_iodev = -1  # only applicable to variable csv and equip csv
-    loc_project_mame = -1
-    loc_cluster = -1
     if file_name.find('equip.csv') >= 0:
         loc_equip = header.index('name')
         loc_iodev = header.index('i/o device')

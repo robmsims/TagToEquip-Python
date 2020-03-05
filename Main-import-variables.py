@@ -18,9 +18,12 @@ import encode_decode_map_schema
 import read_write_dbf
 import read_write_project_structure
 import friendly_name_lookup
+import read_csv_file
 
 
 def map_dbf_to_csv(file_path):
+    print('Converting .dbf files to .csv files')
+
     # find master.dbf
     master_file_path = file_path[0:file_path.rfind('\\')]
     master_file = master_file_path + '\\master.dbf'
@@ -28,9 +31,8 @@ def map_dbf_to_csv(file_path):
     # build know project name vs project path
     dbf_file_exists = os.path.isfile(master_file)
     if dbf_file_exists:
-        master_list,_ = read_write_dbf.read_in_dbf(master_file)
+        master_list, _ = read_write_dbf.read_in_dbf(master_file)
         master_project_name = read_write_project_structure.find_name_for_path(master_list, file_path)
-        print(master_project_name)
 
         # mark master project to be read for included projects
         master_list = read_write_project_structure.\
@@ -43,7 +45,7 @@ def map_dbf_to_csv(file_path):
             if record['include_read_in_status'][1] == 2:
                 project_list.append(record['name'][1])
 
-        print('list of projects to convert is {}'.format(project_list))
+        print('-Include files read. list of projects to convert is {}'.format(project_list))
 
         # read in friendly name
         dbf_csv_lookup_dict = friendly_name_lookup.build_field_friendly_name_lookup(file_path)
@@ -51,19 +53,37 @@ def map_dbf_to_csv(file_path):
         # export all dbf files to convert
         read_write_dbf.convert_dbf_to_csv_in_project_list(master_list, project_list, file_path, dbf_csv_lookup_dict)
 
-        print('end fo dbf export to csv file in master project')
+        print('Completed dbf export to csv files in master and include projects')
 
 
 def update_csv_files(file_path, config_file):
+    print('Updating csv files with new equipment references')
     map_schema, area_map, equipment_map_dict = write_read_config_file.read_config_file(config_file)
     equip_list = read_in_tree_structure.update_tag_csvs(map_schema, area_map, file_path, equipment_map_dict)
+    file_list = read_in_tree_structure.get_file_list()
 
     read_in_tree_structure.update_equipment_csv(file_path, equip_list)
 
-    #read_in_tree_structure.replace_original_csv(file_path)
+    read_in_tree_structure.replace_original_csv(file_path)
+
+    print('Update of csvs complete')
+
+    for csv_file_name in file_list:
+        citect_file = csv_file_name[0:csv_file_name.rfind('.')] + '-citect.csv'
+        if os.path.isfile(file_path + '\\' + citect_file):
+            print('-searching for header match for file {}'.format(csv_file_name))
+            header_is_valid = read_csv_file.test_compare_file_headers(file_path, csv_file_name, citect_file)
+            if header_is_valid:
+                header_is_valid = read_csv_file.test_compare_file_headers(file_path, citect_file, csv_file_name)
+
+            if header_is_valid:
+                print('----file {} is valid'.format(csv_file_name))
+
+    print('Ready to import csvs in master project folder using Citect Studio import feature')
 
 
 def get_schema_and_create_config_file(file_path, config_file):
+    print('Building Equipment Schema')
     file_name = file_path + "\\variable.csv"
 
     # get header file
@@ -94,12 +114,12 @@ def get_schema_and_create_config_file(file_path, config_file):
 
     equip_level_tree = data_base[0][0]
     if equip_level_tree >= 0:
-        print('equipment is located at position {} in the schema'.format(equip_level_tree + 1))
+        print('-equipment is located at position {} in the schema'.format(equip_level_tree + 1))
 
     # is 2 character mode needed
     first_level_tree = data_base[0][1]
     if first_level_tree < 0:  # try 2ch mode
-        print('try find equip position and first area in 2ch numeric mode')
+        print('-try find equip position and first area in 2ch numeric mode')
         mode = 2  # chr area designation
         percent_filter = 98
         data_base = find_equip_and_tree.find_equip_type_position_and_import_data(
@@ -179,24 +199,24 @@ def get_schema_and_create_config_file(file_path, config_file):
 
     if is_item_found:
         last_digit = data_base[0][5]
-        print('item found from position {}'.format(last_digit + 1))
+        print('- item found from position {}'.format(last_digit + 1))
 
         # print final tree
-        print('first level is at schema position {}'.format(first_level_tree + 1))  # convert to 1 base
+        print('-first level is at schema position {}'.format(first_level_tree + 1))  # convert to 1 base
         if second_level_tree >= 0:
-            print('second level is at schema position {}'.format(second_level_tree + 1))  # convert to 1 base
+            print('-second level is at schema position {}'.format(second_level_tree + 1))  # convert to 1 base
         if third_level_tree >= 0:
-            print('third level is at schema position {}'.format(third_level_tree + 1))  # convert to 1 base
+            print('-third level is at schema position {}'.format(third_level_tree + 1))  # convert to 1 base
         if fourth_level_tree >= 0:
-            print('fourth level is at schema position {}'.format(fourth_level_tree + 1))  # convert to 1 base
+            print('-fourth level is at schema position {}'.format(fourth_level_tree + 1))  # convert to 1 base
 
         # generate map schema
         matrix0 = data_base[0]
         map_schema = encode_decode_map_schema.encode_mapping_schema(matrix0, mode, top_schema)
 
         # generate config file
-        print('----- creating mapping file at path given -----')
-        print('map schema {}'.format(map_schema))
+        print('Creating mapping file at path given')
+        print('-map schema {}'.format(map_schema))
 
         # - create an equipment tree based on found schema so we can create a file for mapping
         data_base = read_in_tree_structure.get_equipment_tree(file_name, loc_tagname, loc_cluster,
@@ -213,9 +233,9 @@ def main(file_path=''):
     if file_path == '':
         #file_path = 'D:\\Import\\example'  # set a default file name
         #file_path = 'D:\\Import\\site1'  # set a default file name
-        file_path = 'C:\\ProgramData\\Schneider Electric\\Citect SCADA 2018\\User\\Example\\'
+        file_path = 'C:\\ProgramData\\Schneider Electric\\Citect SCADA 2018\\User\\examplename\\'
 
-        print('argument not entered. using default {}'.format(file_path))
+        print('Argument not entered. using default {}'.format(file_path))
 
     file_path = file_path.rstrip('\\')
 
@@ -231,7 +251,6 @@ def main(file_path=''):
         get_schema_and_create_config_file(file_path, config_file)
     else:
         update_csv_files(file_path, config_file)
-
 
 if __name__ == '__main__':
     # This is executed when called from the command line nloc_iodevot repel

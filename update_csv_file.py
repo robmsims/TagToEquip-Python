@@ -9,7 +9,7 @@ def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
         existing_cluster_equip_item_list = list()
         with open(file_name, mode='rt', encoding='utf-8') as rf:
             read_in_record_count = 0
-            print(scratch_file)
+
             for read_line in rf:
                 read_in_record_count += 1
                 if read_in_record_count > 1:
@@ -105,7 +105,6 @@ def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
 
 
 def update_equipment_csv(loc_equip, loc_cluster, loc_iodev, loc_project_name, file_name, equip_list):
-    print('inital equip list length = {}'.format(len(equip_list)))
     scratch_file = file_name.replace('.csv', '-working.csv')
     with open(scratch_file, mode='wt', encoding='utf-8') as sf:
         # read existing equipment and delete from new equipment list if match
@@ -123,8 +122,6 @@ def update_equipment_csv(loc_equip, loc_cluster, loc_iodev, loc_project_name, fi
                         del equip_list[equip_key]
                 else:
                     header = read_line
-
-        print('final equip list length = {}'.format(len(equip_list)))
 
         # clear line so it can be used as a template
         record_list = header.rsplit(',')
