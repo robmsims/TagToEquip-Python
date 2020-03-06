@@ -236,7 +236,7 @@ def main(file_path=''):
     if file_path == '':
         #file_path = 'D:\\Import\\example'  # set a default file name
         #file_path = 'D:\\Import\\site1'  # set a default file name
-        file_path = 'C:\\ProgramData\\Schneider Electric\\Citect SCADA 2018\\User\\examplename\\'
+        file_path = 'C:\\ProgramData\\Schneider Electric\\Citect SCADA 2018\\User\\example\\'
 
         print('Argument not entered. using default {}'.format(file_path))
 
