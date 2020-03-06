@@ -91,11 +91,11 @@ def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
 
                         # insert equip and item into mod_line
                         record_list = mod_line.rsplit(',"')
-                        record_list[loc_item] = item + '\"'
-                        record_list[loc_equip] = equip + '\"'
                         for index in range(len(record_list)):
-                            if index > 0:
-                                record_list[index] = '\"' + record_list[index]
+                            record_list[index] = '\"' + record_list[index] # add leading "
+
+                        record_list[loc_item] = '\"' + item + '\"'
+                        record_list[loc_equip] = '\"' + equip + '\"'
 
                         mod_line = ','.join(record_list)
 
@@ -124,13 +124,11 @@ def update_equipment_csv(loc_equip, loc_cluster, loc_iodev, loc_project_name, fi
                     header = read_line
 
         # clear line so it can be used as a template
-        record_list = header.rsplit(',')
-        for item in range(len(record_list) - 1):
-            record_list[item] = '""'
+        new_list = header.rsplit(',')
+        for item in range(len(new_list)):
+            new_list[item] = '""'
 
         for equipment in equip_list:
-            new_list = record_list
-
             cluster = equipment[0:equipment.find(':')]
             equip = equipment[equipment.find(':') + 1:]
             new_list[loc_cluster] = '\"' + cluster + '\"'
