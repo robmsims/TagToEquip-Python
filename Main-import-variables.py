@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
-"""Retrieve and print schema from a variable fime
+'''Retrieve and print schema from a variable fime
     save a default config file
     process default config file on 2nd run writeing changes back to csv file
-
     Note: uses 3rd party library https://pypi.org/project/dbf/
 
 Usage:
-    python3 Main-import-variables.py filename    eg C:\ProgramData\Schneider Electric\Citect SCADA 2018\User\Example
+    python3 Main-import-variables.py filename  eg C:\\ProgramData\\Schneider Electric\\Citect SCADA 2018\\User\\Example
     --on 2nd run
     python3  Mail-import-variables {path}    --> read in mapping.ini under {path} and
-                                                 create *-working.csv files containing equipment field changes
-                                                 which can be imported into project using Citect Studio import
-
-"""
+    create *-working.csv files containing equipment field changes
+    which can be imported into project using Citect Studio import
+'''
 
 import sys
 import find_equip_and_tree
