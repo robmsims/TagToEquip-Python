@@ -45,7 +45,7 @@ def read_in_schema(file_name, loc_tagname, max_count):
         read_count = 0
         for read_line in f:
             if read_count > 0:
-                tag = tag_utils.read_in_data(loc_tagname, read_line.strip()).strip('"')
+                tag = tag_utils.read_in_data(loc_tagname, read_line.strip())
                 # g_tag not used here but required by function get_schema
                 current_schema, g_tag = tag_utils.get_schema(tag)
                 data_block.append(current_schema)
@@ -121,7 +121,7 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, loc_cluster
 
     # compare highest core with next highest score
     if not count_total_max == 0:
-        if count_total_prev / count_total_max <= percent_filter / 100.0:
+        if count_total_prev / count_total_max <= percent_filter / 10.0:  # se to 10 to force schema
             if not equip_postion_max == equip_level_tree:  # reload array if different pos
                 data_base[0][0] = equip_postion_max
                 data_base, _ = read_csv_file.move_scenario_data_to_array(

@@ -26,8 +26,8 @@ def get_schema(tag):
 
 
 def read_in_data(data_loc, line_str):
-    record_list = line_str.rsplit(',')
-    return record_list[data_loc]
+    record_list = line_str.rsplit(',"')
+    return record_list[data_loc].strip('"')
 
 
 def is_tag_part_used(tag_part, schema, matrix0, mode):

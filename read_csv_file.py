@@ -184,8 +184,9 @@ def move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluste
         for read_line in f:
             read_in_record_count += 1
             if read_in_record_count > 0:
-                tag = tag_utils.read_in_data(loc_tagname, read_line.strip()).strip('"')
-                cluster = tag_utils.read_in_data(loc_cluster, read_line.strip()).strip('"')
+                tag = tag_utils.read_in_data(loc_tagname, read_line.strip())
+                cluster = tag_utils.read_in_data(loc_cluster, read_line.strip())
+
                 current_schema, g_tag = tag_utils.get_schema(tag)
 
                 generalised_current_schema = encode_decode_map_schema.generalise_schema(matrix0, mode, current_schema)
@@ -204,3 +205,30 @@ def move_scenario_data_to_array(search_digit, file_name, loc_tagname, loc_cluste
               .format(schema, count, read_in_record_count, 100 * count / read_in_record_count))
 
     return data_base, is_item_digits_found
+
+
+def test_compare_file_headers(file_path, file1, file2):
+    with open(file_path + '\\' + file1, mode='rt', encoding='utf-8') as f:
+        for read_line_file1 in f:
+            break
+
+    with open(file_path + '\\' + file2, mode='rt', encoding='utf-8') as f:
+        for read_line_file2 in f:
+            break
+
+    line_file1 = read_line_file1.rsplit(',')
+    line_file2 = read_line_file2.rsplit(',')
+    is_valid = 1
+    for index in range(len(line_file1)):
+        if line_file1[index] not in line_file2:
+            is_valid = 0
+            print('--file {} field {} not found in file {} header'.
+                  format(file1, line_file1[index].strip('\n'), file2))
+
+    for index in range(len(line_file1)):
+        if not line_file1[index] == line_file2[index]:
+            is_valid = 0
+            print('---file {} field {} not found in same position in file {}'.
+                  format(file1, line_file1[index].strip('\n'), file2))
+
+    return is_valid

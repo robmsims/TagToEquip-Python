@@ -9,39 +9,41 @@ def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
         existing_cluster_equip_item_list = list()
         with open(file_name, mode='rt', encoding='utf-8') as rf:
             read_in_record_count = 0
+
             for read_line in rf:
-                tag = tag_utils.read_in_data(loc_tagname, read_line.strip()).strip('"')
-                cluster = tag_utils.read_in_data(loc_cluster, read_line.strip()).strip('"')
-                item = tag_utils.read_in_data(loc_item, read_line.strip()).strip('"')
-                equipment = tag_utils.read_in_data(loc_equip, read_line.strip()).strip('"')
-
                 read_in_record_count += 1
-                if read_in_record_count > 1 and not equipment == '':
-                    if item == '':
-                        item = tag  # citect will use tag if no item is defined so record tag for item
+                if read_in_record_count > 1:
+                    equipment = tag_utils.read_in_data(loc_equip, read_line.strip())
+                    if not equipment == '':
+                        tag = tag_utils.read_in_data(loc_tagname, read_line.strip())
+                        cluster = tag_utils.read_in_data(loc_cluster, read_line.strip())
+                        item = tag_utils.read_in_data(loc_item, read_line.strip())
+                        if item == '':
+                            item = tag  # citect will use tag if no item is defined so record tag for item
 
-                    equip_key = cluster + ':' + equipment + ":" + item
-                    if equip_key not in existing_cluster_equip_item_list:
-                        existing_cluster_equip_item_list.append(equip_key)
+                        equip_key = cluster + ':' + equipment + ":" + item
+                        if equip_key not in existing_cluster_equip_item_list:
+                            existing_cluster_equip_item_list.append(equip_key)
 
         with open(file_name, mode='rt', encoding='utf-8') as rf:
             read_in_record_count = 0
             for read_line in rf:
-                tag = tag_utils.read_in_data(loc_tagname, read_line.strip()).strip('"')
-                cluster = tag_utils.read_in_data(loc_cluster, read_line.strip()).strip('"')
-                equipment = tag_utils.read_in_data(loc_equip, read_line.strip()).strip('"')
-                iodev = tag_utils.read_in_data(loc_iodev, read_line.strip()).strip('"')
-                project_name = tag_utils.read_in_data(loc_project_name, read_line.strip()).strip('"')
-
                 mod_line = read_line
                 read_in_record_count += 1
-                if read_in_record_count > 1 and equipment == '':
+                if read_in_record_count > 1:
+
+                    tag = tag_utils.read_in_data(loc_tagname, read_line.strip())
                     current_schema, g_tag = tag_utils.get_schema(tag)
 
                     matrix0, mode, generalised_schema = encode_decode_map_schema.decode_mapping_schema(map_schema)
+                    equipment = tag_utils.read_in_data(loc_equip, read_line.strip())
                     generalised_current_schema = encode_decode_map_schema.generalise_schema(matrix0, mode,
                                                                                             current_schema)
-                    if generalised_current_schema.find(generalised_schema) == 0:
+                    if generalised_current_schema.find(generalised_schema) == 0 and equipment == '':
+                        cluster = tag_utils.read_in_data(loc_cluster, read_line.strip())
+                        iodev = tag_utils.read_in_data(loc_iodev, read_line.strip())
+                        project_name = tag_utils.read_in_data(loc_project_name, read_line.strip())
+
                         # construct equipment
                         equip_level_tree = matrix0[0]
                         first_level_tree = matrix0[1]
@@ -74,7 +76,10 @@ def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
 
                         # record all new equipment + iodevice and project name
                         old_equip_key = cluster + ':' + equip
-                        equip_key = cluster + ':' + equipment_map_dict[old_equip_key]
+                        if old_equip_key not in equipment_map_dict:
+                            equip_key = old_equip_key  # should only get invoked if key is deleted from mapping.ini
+                        else:
+                            equip_key = cluster + ':' + equipment_map_dict[old_equip_key]
 
                         if equip_key not in equip_list:
                             equip_list[equip_key] = [iodev, project_name]
@@ -85,9 +90,13 @@ def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
                             item = tag  # fallback to tag to prevent duplicate equip.item reference
 
                         # insert equip and item into mod_line
-                        record_list = mod_line.rsplit(',')
-                        record_list[loc_item] = '\"' + item + '\"'
-                        record_list[loc_equip] = '\"' + equip + '\"'
+                        record_list = mod_line.rsplit(',"')
+                        record_list[loc_item] = item + '\"'
+                        record_list[loc_equip] = equip + '\"'
+                        for index in range(len(record_list)):
+                            if index > 0:
+                                record_list[index] = '\"' + record_list[index]
+
                         mod_line = ','.join(record_list)
 
                 sf.write(mod_line)
@@ -96,7 +105,6 @@ def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
 
 
 def update_equipment_csv(loc_equip, loc_cluster, loc_iodev, loc_project_name, file_name, equip_list):
-    print('inital equip list length = {}'.format(len(equip_list)))
     scratch_file = file_name.replace('.csv', '-working.csv')
     with open(scratch_file, mode='wt', encoding='utf-8') as sf:
         # read existing equipment and delete from new equipment list if match
@@ -112,11 +120,11 @@ def update_equipment_csv(loc_equip, loc_cluster, loc_iodev, loc_project_name, fi
                     if equip_key in equip_list:
                         # remove equipment entry
                         del equip_list[equip_key]
-
-        print('final equip list length = {}'.format(len(equip_list)))
+                else:
+                    header = read_line
 
         # clear line so it can be used as a template
-        record_list = read_line.rsplit(',')
+        record_list = header.rsplit(',')
         for item in range(len(record_list) - 1):
             record_list[item] = '""'
 
@@ -136,6 +144,7 @@ def update_equipment_csv(loc_equip, loc_cluster, loc_iodev, loc_project_name, fi
             if len(project_name) > 0:
                 new_list[loc_project_name] = '\"' + project_name + '\"'
 
-            mod_line = ','.join(new_list)
+            mod_line = '\n' + ','.join(new_list)
 
-            sf.write(mod_line)  # copy existing lines
+            sf.write(mod_line)  # write new line
+            read_in_record_count += 1

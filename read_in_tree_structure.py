@@ -5,8 +5,8 @@ import shutil
 
 def get_equipment_tree(file_name, loc_tagname, loc_cluster, max_count, map_schema, data_base, mode):
     search_digit = 2  # read in csv and make flat equip list with no equipment
-    data_base,_ = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname,
-                                                            loc_cluster, max_count, map_schema, data_base, mode)
+    data_base, _ = read_csv_file.move_scenario_data_to_array(search_digit, file_name, loc_tagname,
+                                                             loc_cluster, max_count, map_schema, data_base, mode)
 
     return data_base
 
@@ -16,34 +16,40 @@ def read_first_line(file_name):
         return f.readline().strip().lower().rsplit(',')
 
 
-def get_file_paths(file_path):
-    equipmnt_file_name = file_path + "\\equip.csv"
-    variables_file_name = file_path + "\\variable.csv"
-    trends_file_name = file_path + "\\trend.csv"
-    spc_file_name = file_path + "\\spc.csv"
-    accums_file_name = file_path + "\\accums.csv"
+def get_file_list():
+    equipmnt_file_name = 'equip.csv'
+    variables_file_name = 'variable.csv'
+    trends_file_name = 'trend.csv'
+    spc_file_name = 'spc.csv'
+    accums_file_name = 'accums.csv'
 
-    advalm_file_name = file_path + "\\advalm.csv"
-    anaalm_file_name = file_path + "\\anaalm.csv"
-    argdig_file_name = file_path + "\\argdig.csv"
-    digalm_file_name = file_path + "\\digalm.csv"
-    hresalm_file_name = file_path + "\\hresalm.csv"
-    tsana_file_name = file_path + "\\tsana.csv"
-    tsdig_file_name = file_path + "\\tsdig.csv"
+    advalm_file_name = 'advalm.csv'
+    anaalm_file_name = 'anaalm.csv'
+    argdig_file_name = 'argdig.csv'
+    digalm_file_name = 'digalm.csv'
+    hresalm_file_name = 'hresalm.csv'
+    tsana_file_name = 'tsana.csv'
+    tsdig_file_name = 'tsdig.csv'
 
     return [equipmnt_file_name, variables_file_name, trends_file_name, spc_file_name, accums_file_name,
             advalm_file_name, anaalm_file_name, argdig_file_name, digalm_file_name,
             hresalm_file_name, tsana_file_name, tsdig_file_name]
 
 
-def get_loc_of_header_columns(file_name):
-    # get header file
-    header = read_first_line(file_name)
+def get_file_paths(file_path):
+    file_list = list()
+    files = get_file_list()
+    for file in files:
+        file_list.append(file_path + '\\' + file)
 
+    return file_list
+
+
+def get_loc_of_header_columns(file_name):
+    header = read_first_line(file_name)
     loc_item = -1
     loc_tagname = -1
     loc_iodev = -1  # only applicable to variable csv and equip csv
-    loc_project_mame = -1
     if file_name.find('equip.csv') >= 0:
         loc_equip = header.index('name')
         loc_iodev = header.index('i/o device')
