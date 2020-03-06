@@ -26,7 +26,7 @@ def find_name_for_path(dbf_list, file_path):
         project = record['name'][1]
         project_path = record['path'][1].rstrip('\\')
         # print(project, project_path)
-        if file_path == project_path:
+        if file_path.lower() == project_path.lower():
             project_name = project
             break
 
