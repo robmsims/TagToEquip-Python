@@ -1,5 +1,5 @@
-# TagToEquip-Python
-##project to convert tags in citect to a hierachical tree struture
+#       TagToEquip-Python
+## project to convert tags in citect to a hierachical tree struture
 ### - supports .csv files
 ### - supports .dbf file if project is in user directory and user directory is same level as config directory
 ### - supports user defined mapping trough mapping.ini
