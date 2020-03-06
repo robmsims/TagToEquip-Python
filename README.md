@@ -14,7 +14,7 @@
 #### {path} is location of master (root) project ie C:\ProgramData\Schneider Electric\Citect SCADA 2018\User\Example
 
 ### [history]
- ported to python from originaly cicode version
- upgraded to write back to csv file
- upgraded to support mapping file
- upgraded to create source .csv files from master project .dbf and include projects
+#### ported to python from originaly cicode version
+#### upgraded to write back to csv file
+#### upgraded to support mapping file
+#### upgraded to create source .csv files from master project .dbf and include projects
