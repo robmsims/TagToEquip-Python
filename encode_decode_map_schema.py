@@ -1,5 +1,5 @@
 def decode_mapping_schema(map_schema):
-    matrix0 = [-1,-1,-1,-1,-1,-1]
+    matrix0 = [-1, -1, -1, -1, -1, -1]
     equip_level_tree = matrix0[0]
     first_level_tree = matrix0[1]
     second_level_tree = matrix0[2]
@@ -49,12 +49,12 @@ def decode_mapping_schema(map_schema):
 def insert_into_map_schema(map_schema, end_schema, level_tree, mode, string):
     string = string[0:mode]
 
-    if len(map_schema) >= level_tree + (mode -1):  # don't write into a position that doesn't exist
+    if len(map_schema) >= level_tree + (mode - 1):  # don't write into a position that doesn't exist
         if map_schema[level_tree:level_tree + 1].isalnum():
             if mode == 1 or (mode == 2 and not map_schema[level_tree:level_tree + 1].isalnum()):
                 map_schema = map_schema[0:level_tree] + string + map_schema[level_tree + mode:]
                 if level_tree > end_schema:
-                    end_schema = level_tree + (mode -1)  # cater for 2ch mode
+                    end_schema = level_tree + (mode - 1)  # cater for 2ch mode
 
     return map_schema, end_schema
 
@@ -88,7 +88,7 @@ def encode_mapping_schema(matrix0, mode, top_schema):
 
     if last_digit >= 0:
         map_schema, end_schema = insert_into_map_schema(map_schema, end_schema, last_digit, 1, 'I')
-        map_schema = map_schema[0:end_schema + 1] # only truncate when looking for item
+        map_schema = map_schema[0:end_schema + 1]  # only truncate when looking for item
 
     return map_schema
 

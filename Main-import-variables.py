@@ -252,6 +252,7 @@ def main(file_path=''):
     else:
         update_csv_files(file_path, config_file)
 
+
 if __name__ == '__main__':
     # This is executed when called from the command line nloc_iodevot repel
     try:

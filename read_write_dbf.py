@@ -43,20 +43,20 @@ def convert_dbf_to_csv_in_project_list(master_list, project_list, file_path, dbf
 
                     sf.write(line)
 
-                for index in range(len(dbf_file)):
-                    record = dbf_file[index]
+                for index1 in range(len(dbf_file)):
+                    record = dbf_file[index1]
                     line = ''
-                    for index in range(len(dbf_header_name)):
-                        field = dbf_header_name[index]
+                    for index2 in range(len(dbf_header_name)):
+                        field = dbf_header_name[index2]
                         if field.lower() in record:
                             line += '\"' + record[field.lower()][1].replace('"', '""') + '\"'
                         else:
                             line += '\"' + project_name + '\"'
 
-                        if not index == len(dbf_header_name) - 1:  # don't put a comma on the last field
+                        if not index2 == len(dbf_header_name) - 1:  # don't put a comma on the last field
                             line += ','
 
-                    if not index == len(dbf_file) - 1:
+                    if not index1 == len(dbf_file) - 1:
                         line += '\n'
 
                     sf.write(line)

@@ -43,7 +43,6 @@ def build_field_friendly_name_lookup(file_path):
                 line = read_line.rsplit(',')
                 ref_dbf = line[2].strip().replace('"', '') + '.dbf'
                 if ref_dbf in dbf_csv_lookup_dict:
-                    line = line
                     for read_field in frm:
                         if read_field.find('NORMAL') == 0:
                             break
@@ -90,7 +89,7 @@ def build_field_friendly_name_lookup(file_path):
                                             elif field == 'ALMSTAT7':
                                                 dbf_csv_lookup_dict[ref_dbf][field] = 'Trigger CBA'
                                             else:
-                                                dbf_csv_lookup_dict[ref_dbf][field] ='unknown key:' + field
+                                                dbf_csv_lookup_dict[ref_dbf][field] = 'unknown key:' + field
 
     return dbf_csv_lookup_dict
 
