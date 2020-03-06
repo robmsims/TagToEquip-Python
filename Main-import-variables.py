@@ -79,7 +79,7 @@ def update_csv_files(file_path, config_file):
             if header_is_valid:
                 print('----file {} is valid'.format(csv_file_name))
 
-    print('Ready to import csvs in master project folder using Citect Studio import feature')
+    print('Ready to import csv files in master project folder using Citect Studio import feature')
 
 
 def get_schema_and_create_config_file(file_path, config_file):

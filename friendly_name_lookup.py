@@ -43,6 +43,7 @@ def build_field_friendly_name_lookup(file_path):
                 line = read_line.rsplit(',')
                 ref_dbf = line[2].strip().replace('"', '') + '.dbf'
                 if ref_dbf in dbf_csv_lookup_dict:
+                    line = line
                     for read_field in frm:
                         if read_field.find('NORMAL') == 0:
                             break
@@ -69,7 +70,27 @@ def build_field_friendly_name_lookup(file_path):
                                 friendly_name = friendly_field[0:pos].strip().strip('"')
                                 for field in dbf_csv_lookup_dict[ref_dbf]:
                                     if dbf_csv_lookup_dict[ref_dbf][field] == number:
-                                        dbf_csv_lookup_dict[ref_dbf][field] = friendly_name
+                                        if not friendly_name == '':
+                                            dbf_csv_lookup_dict[ref_dbf][field] = friendly_name
+                                        else:
+                                            if field == 'ALMSTAT0':
+                                                dbf_csv_lookup_dict[ref_dbf][field] = 'Trigger 000'
+                                            elif field == 'ALMSTAT1':
+                                                dbf_csv_lookup_dict[ref_dbf][field] = 'Trigger 00A'
+                                            elif field == 'ALMSTAT2':
+                                                dbf_csv_lookup_dict[ref_dbf][field] = 'Trigger 0B0'
+                                            elif field == 'ALMSTAT3':
+                                                dbf_csv_lookup_dict[ref_dbf][field] = 'Trigger 0BA'
+                                            elif field == 'ALMSTAT4':
+                                                dbf_csv_lookup_dict[ref_dbf][field] = 'Trigger C00'
+                                            elif field == 'ALMSTAT5':
+                                                dbf_csv_lookup_dict[ref_dbf][field] = 'Trigger C0A'
+                                            elif field == 'ALMSTAT6':
+                                                dbf_csv_lookup_dict[ref_dbf][field] = 'Trigger CB0'
+                                            elif field == 'ALMSTAT7':
+                                                dbf_csv_lookup_dict[ref_dbf][field] = 'Trigger CBA'
+                                            else:
+                                                dbf_csv_lookup_dict[ref_dbf][field] ='unknown key:' + field
 
     return dbf_csv_lookup_dict
 

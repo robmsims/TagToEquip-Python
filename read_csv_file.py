@@ -222,13 +222,13 @@ def test_compare_file_headers(file_path, file1, file2):
     for index in range(len(line_file1)):
         if line_file1[index] not in line_file2:
             is_valid = 0
-            print('file {} field {} not found in file {} header'.
+            print('--file {} field {} not found in file {} header'.
                   format(file1, line_file1[index].strip('\n'), file2))
 
     for index in range(len(line_file1)):
         if not line_file1[index] == line_file2[index]:
             is_valid = 0
-            print('file {} field {} not found in same position in file {}'.
+            print('---file {} field {} not found in same position in file {}'.
                   format(file1, line_file1[index].strip('\n'), file2))
 
     return is_valid

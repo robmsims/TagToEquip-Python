@@ -39,10 +39,8 @@ def convert_dbf_to_csv_in_project_list(master_list, project_list, file_path, dbf
                     count = 1
                     csv_header_list, dbf_header_name = friendly_name_lookup.get_table_friendly_names(
                         dbf_file_name, dbf_csv_lookup_dict)
-                    line = str(csv_header_list).strip('[').strip(']').replace('\'', '').replace(', ', ',')
+                    line = str(csv_header_list).strip('[').strip(']').replace('\'', '').replace(', ', ',') + '\n'
 
-                    if len(dbf_file) > 0:
-                        line += '\n'
                     sf.write(line)
 
                 for index in range(len(dbf_file)):
