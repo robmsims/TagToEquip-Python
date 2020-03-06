@@ -4,11 +4,12 @@
 ### - supports .dbf file if project is in user directory and user directory is same level as config directory
 ### - supports user defined mapping trough mapping.ini
 ### - outputs *-working.csv files under files path attribute given which can be imported into project using Citect Studio
+#### Note: uses 3rd party library https://pypi.org/project/dbf/
 
 ## [useage]
 #### python3  Mail-import-variables {path}    --> will create a mapping file: maapping.ini under {path}
 #### --on 2nd run 
-#### python3  Mail-import-variables {path}    --> read in mapping.ini under {path} and create *-working.csv files containing equipment field changes attribute given which can be imported into project using Citect Studio 
+#### python3  Mail-import-variables {path}    --> read in mapping.ini under {path} and create *-working.csv files containing equipment field changes which can be imported into project using Citect Studio import
 
 ## [args]
 #### {path} is location of master (root) project ie C:\ProgramData\Schneider Electric\Citect SCADA 2018\User\Example

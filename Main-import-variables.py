@@ -3,10 +3,15 @@
     save a default config file
     process default config file on 2nd run writeing changes back to csv file
 
-    todo: create csv files from original dbf files in master and include projects
+    Note: uses 3rd party library https://pypi.org/project/dbf/
 
 Usage:
-    python3 Main-import-variables.py filename    eg D:\Import\Site1\variable.csv
+    python3 Main-import-variables.py filename    eg C:\ProgramData\Schneider Electric\Citect SCADA 2018\User\Example
+    --on 2nd run
+    python3  Mail-import-variables {path}    --> read in mapping.ini under {path} and
+                                                 create *-working.csv files containing equipment field changes
+                                                 which can be imported into project using Citect Studio import
+
 """
 
 import sys
