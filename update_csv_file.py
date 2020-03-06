@@ -82,29 +82,43 @@ def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
                             maped_equip_key = existing_csv_cluster + ':' + equipment_map_dict[new_equip_key]
 
                         # add to new equipment to list if not used anywere
-                        key_exists = 0
+                        is_key_exists = 0
                         for key in new_equip_list:
                             if maped_equip_key.lower() == key.lower():
-                                key_exists = 1
+                                is_key_exists = 1
                                 break
 
-                        if maped_equip_key not in new_equip_list and key_exists == 0:
-                            new_equip_list[maped_equip_key] = [existing_csv_iodev, exiting_csv_project_name]
+                        # check if area is valid
+                        is_key_valid = 0
+                        for area in maped_equip_key[maped_equip_key.find(':')+1:].rsplit('.'):
+                            is_key_valid = 0
+                            for area_char in area:
+                                if area_char.isalpha():
+                                    is_key_valid = 1
+                                    break
 
-                        # check if equip.item is already used
-                        equip_key = maped_equip_key + ":" + new_item
-                        if equip_key.lower() in existing_cluster_equip_item_list:
-                            new_item = exiting_csv_tag  # fallback to tag to prevent duplicate equip.item ref
+                            if not is_key_valid:
+                                break
 
-                        # insert equip and item into mod_line
-                        record_list = mod_line.rsplit(',"')
-                        for index in range(len(record_list)):
-                            record_list[index] = '\"' + record_list[index] # add leading "
+                        if is_key_valid:
+                            if maped_equip_key not in new_equip_list and not is_key_exists:
+                                new_equip_list[maped_equip_key] = [existing_csv_iodev, exiting_csv_project_name]
 
-                        record_list[loc_item] = '\"' + new_item + '\"'
-                        record_list[loc_equip] = '\"' + new_equip + '\"'
+                            # check if equip.item is already used
+                            equip_key = maped_equip_key + ":" + new_item
+                            if equip_key.lower() in existing_cluster_equip_item_list:
+                                new_item = exiting_csv_tag  # fallback to tag to prevent duplicate equip.item ref
 
-                        mod_line = ','.join(record_list)
+                            # insert equip and item into mod_line if equipment generated is valid
+
+                            record_list = mod_line.rsplit(',"')
+                            for index in range(len(record_list)):
+                                record_list[index] = '\"' + record_list[index]  # add leading "
+
+                            record_list[loc_item] = '\"' + new_item + '\"'
+                            record_list[loc_equip] = '\"' + new_equip + '\"'
+
+                            mod_line = ','.join(record_list)
 
                 sf.write(mod_line)
 

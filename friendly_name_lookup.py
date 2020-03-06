@@ -9,11 +9,12 @@ def build_field_friendly_name_lookup(file_path):
 
     with open(citect_ini_file_path, mode='rt', encoding='utf-8') as f:
         for read_line in f:
-            if 'BIN=' in read_line:
+            if '\\bin' in read_line.lower():
                 break
 
-    citect_frm_path = read_line[4:].rstrip('\n') + '\\citect.frm'
-    citect_frm_extensions_path = read_line[4:].rstrip('\n') + '\\CitectFrmExtensions.xml'
+    bin_path = read_line[read_line.find('=') + 1:].strip()
+    citect_frm_path = bin_path + '\\citect.frm'
+    citect_frm_extensions_path = bin_path + '\\CitectFrmExtensions.xml'
 
     dbf_csv_lookup_dict = dict()
     with open(citect_frm_extensions_path, mode='rt', encoding='utf-8') as frmext:
