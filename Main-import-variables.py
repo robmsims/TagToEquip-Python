@@ -67,7 +67,7 @@ def update_csv_files(file_path, config_file):
 
     read_in_tree_structure.update_equipment_csv(file_path, equip_list)
 
-    # read_in_tree_structure.replace_original_csv(file_path)
+    #read_in_tree_structure.replace_original_csv(file_path)
 
     print('Update of csvs complete')
 
@@ -105,7 +105,7 @@ def get_schema_and_create_config_file(file_path, config_file):
     loc_cluster = header.index('cluster name')
 
     # get most common schema
-    max_count = 8000000  # limit read in while testing
+    max_count = 2000000  # limit read in while testing
     top_schema = find_equip_and_tree.read_in_schema(file_name, loc_tagname, max_count)
     print('schema = {}'.format(top_schema))
 
@@ -198,14 +198,9 @@ def get_schema_and_create_config_file(file_path, config_file):
                 or last_digit < second_level_tree + mode - 1 \
                 or last_digit < first_level_tree + mode - 1 \
                 or last_digit < equip_level_tree:
-            print('Warning equip number part start is before area digit')
+            print('Warning item part start is before area digit')
 
     if is_item_found:
-        data_base = find_equip_and_tree.find_equipment(top_schema, data_base)
-        equip_num_start = data_base[0][6]
-        equip_num_end = data_base[0][7]
-        print('- equip digit found from position {} to position {}'.format(equip_num_start + 1, equip_num_end + 1))
-
         last_digit = data_base[0][5]
         print('- item found from position {}'.format(last_digit + 1))
 
@@ -231,19 +226,17 @@ def get_schema_and_create_config_file(file_path, config_file):
                                                               max_count, map_schema, data_base, mode)
 
         equipment_list = sorted(data_base[1][0])
-        equip_type_list = sorted(data_base[3])
-        write_read_config_file.write_config(config_file, map_schema, equipment_list, equip_type_list)
-        print('Mapping file writen for schema found')
+        write_read_config_file.write_config(config_file, map_schema, equipment_list)
+        print('Default config file writen')
     else:
-        write_read_config_file.write_config(config_file, 'AEXxI', [], [])
-        print('Error Schema not found. Default mapping file writen. Please manually edit')
+        print('Error default config file not writen. Schema not found')
 
 
 def main(file_path=''):
     if file_path == '':
-        # file_path = 'D:\\Import\\example'  # set a default file name
-        file_path = 'D:\\Import\\site1'  # set a default file name
-        # file_path = 'C:\\ProgramData\\Schneider Electric\\Citect SCADA 2018\\User\\examplename\\'
+        #file_path = 'D:\\Import\\example'  # set a default file name
+        #file_path = 'D:\\Import\\site1'  # set a default file name
+        file_path = 'C:\\ProgramData\\Schneider Electric\\Citect SCADA 2018\\User\\examplename\\'
 
         print('Argument not entered. using default {}'.format(file_path))
 
