@@ -206,7 +206,7 @@ def find_item(file_name, loc_tagname, loc_cluster, max_count, schema, data_base,
             data_base[0][0] = - 1
 
         data_base[0][5] = l_digit
-        schema = schema[0:l_digit + 1]
+        # schema = schema[0:l_digit + 1]
         data_base, is_item_digits_found = read_csv_file.move_scenario_data_to_array(
                             search_digit, file_name, loc_tagname, loc_cluster, max_count, schema, data_base, mode)
         if is_item_digits_found:
@@ -237,7 +237,7 @@ def find_equipment(schema, data_base):
                 break
 
         if is_equip_num_found:
-            if not next_char.isalnum():
+            if not next_char.isalnum():  # not alphanumeric
                 if index + 2 <= search_end:
                     data_base[0][5] = index + 2  # index
                     data_base[0][6] = equip_num_start

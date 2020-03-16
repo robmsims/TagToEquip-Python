@@ -53,7 +53,8 @@ def map_dbf_to_csv(file_path):
         # read in friendly name
         dbf_csv_lookup_dict = friendly_name_lookup.build_field_friendly_name_lookup(file_path)
 
-        # export all dbf files to convert
+        # export all dbf files to convert. csvs will be stored in master and include data from all includes projects
+        # note system includes excluded
         read_write_dbf.convert_dbf_to_csv_in_project_list(master_list, project_list, file_path, dbf_csv_lookup_dict)
 
         print('Completed dbf export to csv files in master and include projects')
@@ -61,16 +62,23 @@ def map_dbf_to_csv(file_path):
 
 def update_csv_files(file_path, config_file):
     print('Updating csv files with new equipment references')
-    map_schema, area_map, equipment_map_dict = write_read_config_file.read_config_file(config_file)
-    equip_list = read_in_tree_structure.update_tag_csvs(map_schema, area_map, file_path, equipment_map_dict)
-    file_list = read_in_tree_structure.get_file_list()
+    print('- reading in mapping.ini file')
+    map_schema, area_map, equipment_map_dict, equipment_type_map_dict, item_type_map_dict, area_prefix_map_dict = \
+        write_read_config_file.read_config_file(config_file)
 
+    # write to tag csvs and outut equip list
+    equip_list = read_in_tree_structure.update_tag_csvs(map_schema, area_map, file_path, equipment_map_dict,
+                                                    equipment_type_map_dict, item_type_map_dict, area_prefix_map_dict)
+
+    # write to equip.csv
     read_in_tree_structure.update_equipment_csv(file_path, equip_list)
 
     # read_in_tree_structure.replace_original_csv(file_path)
-
     print('Update of csvs complete')
 
+    # for dev purposes only
+    # verify generated files header against exported files header ie *-citect.csv
+    file_list = read_in_tree_structure.get_file_list()
     for csv_file_name in file_list:
         citect_file = csv_file_name[0:csv_file_name.rfind('.')] + '-citect.csv'
         if os.path.isfile(file_path + '\\' + citect_file):
@@ -230,12 +238,13 @@ def get_schema_and_create_config_file(file_path, config_file):
         data_base = read_in_tree_structure.get_equipment_tree(file_name, loc_tagname, loc_cluster,
                                                               max_count, map_schema, data_base, mode)
 
-        equipment_list = sorted(data_base[1][0])
-        equip_type_list = sorted(data_base[3])
-        write_read_config_file.write_config(config_file, map_schema, equipment_list, equip_type_list)
+        area_list = sorted(data_base[1][0])  # cluster: Area.Area
+        equip_type_list = sorted(data_base[3]) # equipment types
+        item_type_list = sorted(data_base[2]) # item types
+        write_read_config_file.write_config(config_file, map_schema, area_list, equip_type_list, item_type_list)
         print('Mapping file writen for schema found')
     else:
-        write_read_config_file.write_config(config_file, 'AEXxI', [], [])
+        write_read_config_file.write_config(config_file, 'AEXNNxI', [], [], [])
         print('Error Schema not found. Default mapping file writen. Please manually edit')
 
 
@@ -257,6 +266,7 @@ def main(file_path=''):
 
     config_file = file_path + '\\mapping.ini'
     config_file_exists = os.path.isfile(config_file)
+    # config_file_exists = False  # for testing. force re-generation of config file
     if not config_file_exists:
         get_schema_and_create_config_file(file_path, config_file)
     else:

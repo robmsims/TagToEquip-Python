@@ -2,14 +2,14 @@ import encode_decode_map_schema
 import tag_utils
 
 
-def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
-               loc_cluster, loc_iodev, loc_project_name, file_name, new_equip_list, equipment_map_dict):
+def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname, loc_cluster, loc_iodev, loc_project_name,
+               file_name, new_equip_list, equipment_map_dict, equipment_type_map_dict, item_type_map_dict,
+               area_prefix_map_dict):
     scratch_file = file_name.replace('.csv', '-working.csv')
     with open(scratch_file, mode='wt', encoding='utf-8') as sf:
         existing_cluster_equip_item_list = list()
         with open(file_name, mode='rt', encoding='utf-8') as rf:
             read_in_record_count = 0
-
             for read_line in rf:
                 read_in_record_count += 1
                 if read_in_record_count > 1:
@@ -18,10 +18,10 @@ def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
                         exiting_csv_tag = tag_utils.read_in_data(loc_tagname, read_line.strip())
                         existing_csv_cluster = tag_utils.read_in_data(loc_cluster, read_line.strip())
                         existing_csv_item = tag_utils.read_in_data(loc_item, read_line.strip())
-                        if existing_csv_item == '':
-                            existing_csv_item = exiting_csv_tag  # citect will use tag if no item is defined so record tag for item
+                        if existing_csv_item == '':  # citect will use tag if no item is defined so record tag for item
+                            existing_csv_item = exiting_csv_tag
 
-                        equip_key = existing_csv_cluster + ':' + existing_csv_equipment + ":" + existing_csv_item
+                        equip_key = existing_csv_cluster + ':' + existing_csv_equipment
                         if equip_key.lower() not in existing_cluster_equip_item_list:
                             existing_cluster_equip_item_list.append(equip_key.lower())
 
@@ -51,74 +51,93 @@ def update_csv(map_schema, area_map, loc_equip, loc_item, loc_tagname,
                         third_level_tree = matrix0[3]
                         fourth_level_tree = matrix0[4]
                         last_digit = matrix0[5]
+                        equip_num_start = matrix0[6]
+                        equip_num_end = matrix0[7]
 
-                        new_equip = ''
-                        for char in area_map:
-                            if char == 'A' and first_level_tree >= 0:
-                                new_equip += tag_utils.add_equip_part(g_tag, first_level_tree, mode)
-                            elif char == 'B' and second_level_tree >= 0:
-                                new_equip += tag_utils.add_equip_part(g_tag, second_level_tree, mode)
-                            elif char == 'C' and third_level_tree >= 0:
-                                new_equip += tag_utils.add_equip_part(g_tag, third_level_tree, mode)
-                            elif char == 'D' and fourth_level_tree >= 0:
-                                new_equip += tag_utils.add_equip_part(g_tag, fourth_level_tree, mode)
-                            elif char == '.':
-                                new_equip += '.'
+                        prefix_area_key = ''
+                        new_equip = '.'
+                        area_key = ''
+                        for chars in area_map.rsplit('.'):
+                            if chars.find('Prefix') == 1:
+                                # get prefix + Area
+                                char = chars[len('xPrefix'):]
+                                prefix = chars[0:len('xPrefix')]
+                                if char == 'A' and first_level_tree >= 0:
+                                    area_key += tag_utils.add_equip_part(g_tag, first_level_tree, mode)
+                                    prefix_area_key += area_prefix_map_dict[prefix] + \
+                                                 tag_utils.add_equip_part(g_tag, first_level_tree, mode)
+                                elif char == 'B' and second_level_tree >= 0:
+                                    area_key += '.' + tag_utils.add_equip_part(g_tag, second_level_tree, mode)
+                                    prefix_area_key += '.' + area_prefix_map_dict[prefix] + \
+                                                 tag_utils.add_equip_part(g_tag, second_level_tree, mode)
+                                elif char == 'C' and third_level_tree >= 0:
+                                    area_key += '.' + tag_utils.add_equip_part(g_tag, third_level_tree, mode)
+                                    prefix_area_key += '.' + area_prefix_map_dict[prefix] + \
+                                                 tag_utils.add_equip_part(g_tag, third_level_tree, mode)
+                                elif char == 'D' and fourth_level_tree >= 0:
+                                    area_key += '.' + tag_utils.add_equip_part(g_tag, fourth_level_tree, mode)
+                                    prefix_area_key += '.' + area_prefix_map_dict[prefix] + \
+                                                 tag_utils.add_equip_part(g_tag, fourth_level_tree, mode)
+                            else:
+                                # add equip type + equip numbers
+                                for char in chars:
+                                    if char == 'E':
+                                        new_equip += equipment_type_map_dict[g_tag[equip_level_tree]]
+                                    if char == 'X':
+                                        for index in range(len(current_schema)):
+                                            if index >= equip_num_start and index <= equip_num_end:
+                                                new_equip += g_tag[index]
 
-                        # construct equip_type + item
-                        new_item = ''
-                        if equip_level_tree >= 0:
-                            new_item += g_tag[equip_level_tree]
-
+                        # construct item
+                        item = ''
                         for index in range(len(current_schema)):
                             if index >= last_digit:
-                                new_item += g_tag[index]
+                                item += g_tag[index]
+
+                        if item in item_type_map_dict:
+                            new_item = item_type_map_dict[item]
+                        else:
+                            new_item = item
 
                         # record all new equipment + iodevice and project name
-                        new_equip_key = existing_csv_cluster + ':' + new_equip
-                        if new_equip_key not in equipment_map_dict:
-                            maped_equip_key = new_equip_key  # should only get invoked if key in  mapping.ini
-                        else:
-                            maped_equip_key = existing_csv_cluster + ':' + equipment_map_dict[new_equip_key]
+                        new_area_key = existing_csv_cluster + ':' + area_key
+                        if new_area_key in equipment_map_dict:
+                            # if mapped area is not the same as default then add prefix
+                            if not new_area_key == existing_csv_cluster + ':' + equipment_map_dict[new_area_key]:
+                                prefix_area_key = equipment_map_dict[new_area_key]
 
-                        # add to new equipment to list if not used anywere
-                        is_key_exists = 0
-                        for key in new_equip_list:
-                            if maped_equip_key.lower() == key.lower():
-                                is_key_exists = 1
-                                break
+                        prefix_area_key += new_equip
 
-                        # check if area is valid
+                        cluster_area_key = existing_csv_cluster + ':' + prefix_area_key
+
+                        # check if area parts and equip part is valid
                         is_key_valid = 0
-                        for area in maped_equip_key[maped_equip_key.find(':')+1:].rsplit('.'):
-                            is_key_valid = 0
-                            for area_char in area:
-                                if area_char.isalpha():
-                                    is_key_valid = 1
-                                    break
-
-                            if not is_key_valid:
+                        for area in cluster_area_key[cluster_area_key.find(':')+1:].rsplit('.'):
+                            if len(area) == 0:
+                                is_key_valid = 0
                                 break
+                            else:
+                                is_key_valid = 1
 
                         if is_key_valid:
-                            if maped_equip_key not in new_equip_list and not is_key_exists:
-                                new_equip_list[maped_equip_key] = [existing_csv_iodev, exiting_csv_project_name]
+                            # add to new equipment to list if not used anywhere
+                            is_key_exists = 0
+                            if cluster_area_key in new_equip_list:
+                                is_key_exists = 1
 
-                            # check if equip.item is already used
-                            equip_key = maped_equip_key + ":" + new_item
-                            if equip_key.lower() in existing_cluster_equip_item_list:
-                                new_item = exiting_csv_tag  # fallback to tag to prevent duplicate equip.item ref
+                            if not is_key_exists and not cluster_area_key.lower() in existing_cluster_equip_item_list:
+                                new_equip_list[cluster_area_key] = [existing_csv_iodev, exiting_csv_project_name]
 
-                            # insert equip and item into mod_line if equipment generated is valid
-
+                            # insert equip and item into mod_line if equipment generated is valid and cell empty
                             record_list = mod_line.rsplit(',"')
-                            for index in range(len(record_list)):
-                                record_list[index] = '\"' + record_list[index]  # add leading "
+                            if record_list[loc_equip] == '""':
+                                for index in range(len(record_list)):
+                                    record_list[index] = '\"' + record_list[index]  # add leading "
 
-                            record_list[loc_item] = '\"' + new_item + '\"'
-                            record_list[loc_equip] = '\"' + new_equip + '\"'
+                                record_list[loc_item] = '\"' + new_item + '\"'
+                                record_list[loc_equip] = '\"' + prefix_area_key + '\"'
 
-                            mod_line = ','.join(record_list)
+                                mod_line = ','.join(record_list)
 
                 sf.write(mod_line)
 

@@ -106,7 +106,7 @@ def encode_mapping_schema(matrix0, mode, top_schema):
 
     if last_digit >= 0:
         map_schema, end_schema = insert_into_map_schema(map_schema, end_schema, last_digit, 1, 'I')
-        map_schema = map_schema[0:end_schema + 1]  # only truncate when looking for item
+        # map_schema = map_schema[0:end_schema + 1]  # only truncate when looking for item
 
     return map_schema
 

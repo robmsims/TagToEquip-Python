@@ -26,12 +26,12 @@ def read_in_dbf(dbf_file_name):
 
 
 def convert_dbf_to_csv_in_project_list(master_list, project_list, file_path, dbf_csv_lookup_dict):
-    csv_list = read_in_tree_structure.get_file_list()
+    csv_list = read_in_tree_structure.get_file_list() # create a list of csv files needed per project path 12 off
     for csv_file_name in csv_list:
-        dbf_file_name = csv_file_name[0:csv_file_name.rfind('.')] + '.dbf'
+        dbf_file_name = csv_file_name[0:csv_file_name.rfind('.')] + '.dbf' # dbf file name corresponding to csv
         with open(file_path + '\\' + csv_file_name, mode='wt', encoding='utf-8') as sf:
             count = 0
-            for project_name in project_list:
+            for project_name in project_list: # do for all included projects`
                 project_path = read_write_project_structure.get_field_value(
                     master_list, project_name, 'path').rstrip('\\')
                 dbf_file, _ = read_in_dbf(project_path + '\\' + dbf_file_name)
@@ -41,7 +41,7 @@ def convert_dbf_to_csv_in_project_list(master_list, project_list, file_path, dbf
                         dbf_file_name, dbf_csv_lookup_dict)
                     line = str(csv_header_list).strip('[').strip(']').replace('\'', '').replace(', ', ',') + '\n'
 
-                    sf.write(line)
+                    sf.write(line) # write header line
 
                 for index1 in range(len(dbf_file)):
                     record = dbf_file[index1]
