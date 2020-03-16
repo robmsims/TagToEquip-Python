@@ -1,11 +1,13 @@
 def decode_mapping_schema(map_schema):
-    matrix0 = [-1, -1, -1, -1, -1, -1]
+    matrix0 = [-1, -1, -1, -1, -1, -1, -1, -1]
     equip_level_tree = matrix0[0]
     first_level_tree = matrix0[1]
     second_level_tree = matrix0[2]
     third_level_tree = matrix0[3]
     fourth_level_tree = matrix0[4]
     last_digit = matrix0[5]
+    equip_num_start = matrix0[6]
+    equip_num_end = matrix0[7]
 
     schema = map_schema
 
@@ -14,6 +16,10 @@ def decode_mapping_schema(map_schema):
         char = map_schema[index:index + 1]
         if char == 'E':
             equip_level_tree = index
+        elif char == 'X':
+            equip_num_start = index
+        elif char == 'x':
+            equip_num_end = index
         elif char == 'I':
             last_digit = index
         elif char == 'A':
@@ -35,6 +41,10 @@ def decode_mapping_schema(map_schema):
             schema = schema[0:index] + "*" + schema[index + 1:]
         elif char == 'E':
             schema = schema[0:index] + "W" + schema[index + 1:]
+        elif char == 'X':
+            schema = schema[0:index] + "*" + schema[index + 1:]
+        elif char == 'x':
+            schema = schema[0:index] + "*" + schema[index + 1:]
 
     matrix0[0] = equip_level_tree
     matrix0[1] = first_level_tree
@@ -42,6 +52,8 @@ def decode_mapping_schema(map_schema):
     matrix0[3] = third_level_tree
     matrix0[4] = fourth_level_tree
     matrix0[5] = last_digit
+    matrix0[6] = equip_num_start
+    matrix0[7] = equip_num_end
 
     return matrix0, mode, schema
 
@@ -66,6 +78,8 @@ def encode_mapping_schema(matrix0, mode, top_schema):
     third_level_tree = matrix0[3]
     fourth_level_tree = matrix0[4]
     last_digit = matrix0[5]
+    equip_num_start = matrix0[6]
+    equip_num_end = matrix0[7]
 
     map_schema = top_schema
 
@@ -85,6 +99,10 @@ def encode_mapping_schema(matrix0, mode, top_schema):
 
     if equip_level_tree >= 0:
         map_schema, end_schema = insert_into_map_schema(map_schema, end_schema, equip_level_tree, 1, 'E')
+
+    if equip_num_start >= 0 and equip_num_end >= 0:
+        map_schema, end_schema = insert_into_map_schema(map_schema, end_schema, equip_num_start, 1, 'X')
+        map_schema, end_schema = insert_into_map_schema(map_schema, end_schema, equip_num_end, 1, 'x')
 
     if last_digit >= 0:
         map_schema, end_schema = insert_into_map_schema(map_schema, end_schema, last_digit, 1, 'I')
