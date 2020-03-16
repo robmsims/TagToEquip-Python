@@ -61,16 +61,19 @@ def map_dbf_to_csv(file_path):
 
 def update_csv_files(file_path, config_file):
     print('Updating csv files with new equipment references')
-    map_schema, area_map, equipment_map_dict = write_read_config_file.read_config_file(config_file)
-    equip_list = read_in_tree_structure.update_tag_csvs(map_schema, area_map, file_path, equipment_map_dict)
-    file_list = read_in_tree_structure.get_file_list()
+    print('- reading in mapping.ini file')
+    map_schema, area_map, equipment_map_dict, equipment_type_map_dict, equipment_area_prefix_map_dict = \
+        write_read_config_file.read_config_file(config_file)
+    equip_list = read_in_tree_structure.update_tag_csvs(
+        map_schema, area_map, file_path, equipment_map_dict, equipment_type_map_dict, equipment_area_prefix_map_dict)
 
     read_in_tree_structure.update_equipment_csv(file_path, equip_list)
 
     # read_in_tree_structure.replace_original_csv(file_path)
-
     print('Update of csvs complete')
 
+    # verify generated files header against exported files header ie *-citect.csv
+    file_list = read_in_tree_structure.get_file_list()
     for csv_file_name in file_list:
         citect_file = csv_file_name[0:csv_file_name.rfind('.')] + '-citect.csv'
         if os.path.isfile(file_path + '\\' + citect_file):
