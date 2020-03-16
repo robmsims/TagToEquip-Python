@@ -4,20 +4,12 @@ import tag_utils
 
 def send_equipment(g_tag, data_base, mode, cluster):
     # search_digit == 2
-    matrix0 = data_base[0]
-    equip_level_tree = matrix0[0]
-    first_level_tree = matrix0[1]
-    second_level_tree = matrix0[2]
-    third_level_tree = matrix0[3]
-    fourth_level_tree = matrix0[4]
+    first_level_tree = data_base[0][1]
+    second_level_tree = data_base[0][2]
+    third_level_tree = data_base[0][3]
+    fourth_level_tree = data_base[0][4]
 
     matrix = data_base[1]
-
-    equip_matrix = data_base[3]
-
-    eq_part = g_tag[equip_level_tree]
-    if eq_part not in equip_matrix:
-        equip_matrix.append(eq_part)
 
     index = 0
     if index not in matrix:
@@ -80,9 +72,9 @@ def send_item_parts(g_tag, data_base, mode, schema, cluster):
     if tag not in list_matrix:
         list_matrix.append(tag)  # create first dictionary entry at tag
         is_item_digits_found = 1  # signal continue searching
-    # else:
+    else:
         # duplicate found aborting this search
-        # print('duplicate tag found {} g_tag {} last_digit {}'.format(tag, g_tag, last_digit))
+        print('duplicate tag found {} g_tag {} last_digit {}'.format(tag, g_tag, last_digit))
 
     return is_item_digits_found
 

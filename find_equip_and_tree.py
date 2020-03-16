@@ -79,7 +79,7 @@ def find_equip_type_position_and_import_data(file_name, loc_tagname, loc_cluster
         if char == "W":
             word_count += 1
 
-    matrix0 = [-1, -1, -1, -1, -1, -1, -1, -1]  # initialize area hierarchy
+    matrix0 = [-1, -1, -1, -1, -1, -1]  # initialize area hierarchy
     matrix = []
     equip_type_count_matrix = []
     equip_matrix = []
@@ -219,33 +219,3 @@ def find_item(file_name, loc_tagname, loc_cluster, max_count, schema, data_base,
         is_item_found = 1
 
     return data_base, is_item_found
-
-
-def find_equipment(schema, data_base):
-    equip_num_start = data_base[0][5]
-    search_end = len(schema) - 1
-
-    is_equip_num_found = 0
-    if equip_num_start < search_end:
-        next_char = ''
-        index = len(schema) - 1
-        for index in range(equip_num_start, search_end - 1):
-            current_char = schema[index:index + 1]
-            next_char = schema[index + 1:index + 2]
-            if not current_char == next_char:
-                is_equip_num_found = 1
-                break
-
-        if is_equip_num_found:
-            if not next_char.isalnum():
-                if index + 2 <= search_end:
-                    data_base[0][5] = index + 2  # index
-                    data_base[0][6] = equip_num_start
-                    data_base[0][7] = index   # end of number part
-
-            else:
-                data_base[0][5] = index + 1  # index
-                data_base[0][6] = equip_num_start
-                data_base[0][7] = index  # end of number part
-
-    return data_base
