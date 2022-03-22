@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-'''Retrieve and print schema from a variable fime
+'''Retrieve and print schema from a variable.dbf file
     save a default config file
     process default config file on 2nd run writeing changes back to csv file
-    Note: uses 3rd party library https://pypi.org/project/dbf/
+    Note: uses 3rd party library https://pypi.org/project/dbf/ to read in variable.dbf
+    from terminal >pip install -r requirements.txt
 
 Usage:
     python3 Main-import-variables.py filename  eg C:\\ProgramData\\Schneider Electric\\Citect SCADA 2018\\User\\Example
